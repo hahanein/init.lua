@@ -25,10 +25,12 @@ Plug 'tpope/vim-fugitive'
 
 vim.call('plug#end')
 
-do -- Configure ripgrep:
+do -- Configure ctrlp:
 	vim.opt.grepprg = 'rg --color=never'
 	vim.g.ctrlp_user_command = 'rg %s --files --color=never --glob ""'
 	vim.g.ctrlp_use_caching = false
+
+	vim.g.ctrlp_working_path_mode = false
 end
 
 vim.cmd("colorscheme brutalism")
