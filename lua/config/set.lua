@@ -32,3 +32,21 @@ vim.opt.fillchars:append {
 	vert = '|', -- Vertical split separator
 	stl = '^', -- Horizontal split separator
 }
+
+vim.api.nvim_create_autocmd("BufRead", { -- On opening buffer jump to last known cursor position:
+	callback = function()
+		vim.api.nvim_create_autocmd("FileType", {
+			once = true,
+			callback = function()
+				local ft = vim.bo.filetype
+				if not ft:match("commit") and not ft:match("rebase") then
+					local last_pos = vim.fn.line("'\"")
+					local last_line = vim.fn.line("$")
+					if last_pos > 1 and last_pos <= last_line then
+						vim.cmd("normal! g`\"")
+					end
+				end
+			end,
+		})
+	end,
+})
