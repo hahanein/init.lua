@@ -33,20 +33,25 @@ vim.opt.fillchars:append {
 	stl = '^', -- Horizontal split separator
 }
 
-vim.api.nvim_create_autocmd("BufRead", { -- On opening buffer jump to last known cursor position:
-	callback = function()
-		vim.api.nvim_create_autocmd("FileType", {
-			once = true,
-			callback = function()
-				local ft = vim.bo.filetype
-				if not ft:match("commit") and not ft:match("rebase") then
+do -- On opening buffer jump to last known cursor position:
+	vim.api.nvim_create_augroup('RestoreCursor', { clear = true })
+	vim.api.nvim_create_autocmd('BufRead', {
+		group = 'RestoreCursor',
+		callback = function()
+			vim.api.nvim_create_autocmd('FileType', {
+				buffer = 0,
+				once = true,
+				callback = function()
 					local last_pos = vim.fn.line("'\"")
 					local last_line = vim.fn.line("$")
-					if last_pos > 1 and last_pos <= last_line then
+					local ft = vim.bo.filetype
+
+					if last_pos >= 1 and last_pos <= last_line and not ft:match('commit') and
+						vim.tbl_contains({ 'xxd', 'gitrebase' }, ft) == false then
 						vim.cmd("normal! g`\"")
 					end
-				end
-			end,
-		})
-	end,
-})
+				end,
+			})
+		end,
+	})
+end
