@@ -250,7 +250,7 @@ do -- Formatter configuration:
 						require("formatter.config").values.filetype[vim.bo.filetype] == nil
 						and vim.lsp.buf.server_ready ~= nil
 					then
-						vim.lsp.buf.format({ async = false })
+						vim.lsp.buf.format({ async = true })
 					end
 				end,
 			},
