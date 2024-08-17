@@ -200,3 +200,5 @@ do -- Test configuration:
 	vim.g['test#strategy'] = 'asyncrun'
 	vim.g.asyncrun_open = 10
 end
+
+vim.opt.statusline = "%<%f%h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)%P"
