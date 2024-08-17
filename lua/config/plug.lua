@@ -35,6 +35,9 @@ do -- Import plugins:
 
 	Plug("tpope/vim-fugitive")
 
+	Plug("zbirenbaum/copilot.lua")
+	Plug("zbirenbaum/copilot-cmp")
+
 	vim.call("plug#end")
 end
 
@@ -129,7 +132,11 @@ do -- Completion configuration:
 			["<C-e>"] = cmp.mapping.abort(),
 			["<CR>"] = cmp.mapping.confirm({ select = true }),
 		}),
-		sources = cmp.config.sources({ { name = "nvim_lsp" } }, { { name = "buffer" } }),
+		sources = cmp.config.sources({
+			{ name = "copilot" },
+			{ name = "nvim_lsp" },
+			{ name = "buffer" },
+		}),
 	})
 
 	cmp.setup.cmdline({ "/", "?" }, {
@@ -267,4 +274,9 @@ do -- Test configuration:
 
 	vim.g["test#strategy"] = "asyncrun"
 	vim.g.asyncrun_open = 10
+end
+
+do -- Copilot configuration:
+	require("copilot").setup({ suggestion = { enabled = false }, panel = { enabled = false } })
+	require("copilot_cmp").setup()
 end
