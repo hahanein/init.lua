@@ -243,7 +243,7 @@ do -- Formatter configuration:
 			typescript = { require("formatter.filetypes.typescript").biome },
 			javascriptreact = { require("formatter.filetypes.javascript").biome },
 			typescriptreact = { require("formatter.filetypes.typescript").biome },
-			["*"] = { -- Fallback on LSP formatting:
+			["*"] = { -- Fallback on LSP formatting if available:
 				require("formatter.filetypes.any").remove_trailing_whitespace,
 				function()
 					if
