@@ -11,7 +11,7 @@ do -- Import plugins:
 	Plug("nvim-treesitter/nvim-treesitter-textobjects")
 
 	do -- Managed with mason:
-		Plug("williamboman/mason.nvim")
+		Plug("williamboman/mason.nvim", { ["do"] = vim.fn[":MasonUpdate"] })
 		Plug("williamboman/mason-lspconfig.nvim")
 
 		Plug("neovim/nvim-lspconfig")
