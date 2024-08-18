@@ -19,6 +19,8 @@ do -- Import plugins:
 		Plug("hrsh7th/cmp-path")
 		Plug("hrsh7th/cmp-cmdline")
 		Plug("hrsh7th/nvim-cmp")
+		Plug("zbirenbaum/copilot.lua")
+		Plug("zbirenbaum/copilot-cmp")
 
 		local manual = { ["on"] = {} }
 
@@ -35,9 +37,7 @@ do -- Import plugins:
 
 	Plug("tpope/vim-fugitive")
 
-	Plug("zbirenbaum/copilot.lua")
-	Plug("zbirenbaum/copilot-cmp")
-
+	Plug("rmagatti/auto-session")
 	vim.call("plug#end")
 end
 
@@ -74,6 +74,7 @@ do -- Ctrlp configuration:
 	vim.g.ctrlp_user_command = 'rg %s --files --color=never --glob ""'
 	vim.g.ctrlp_use_caching = false
 	vim.g.ctrlp_working_path_mode = false
+	vim.keymap.set("n", "<C-e>", ":CtrlPBuffer<CR>")
 end
 
 require("nvim-surround").setup()
@@ -264,3 +265,5 @@ do -- Test configuration:
 end
 
 vim.o.statusline = "%<%f%h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)%P"
+
+require("auto-session").setup({ auto_session_suppress_dirs = { "~/", "~/projects", "~/downloads", "/" } })
