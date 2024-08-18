@@ -276,6 +276,8 @@ do -- Test configuration:
 	vim.g.asyncrun_open = 10
 end
 
+vim.o.statusline = "%<%f%h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)%P"
+
 do -- Copilot configuration:
 	require("copilot").setup({ suggestion = { enabled = false }, panel = { enabled = false } })
 	require("copilot_cmp").setup()
