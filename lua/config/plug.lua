@@ -57,6 +57,7 @@ end
 vim.cmd("colorscheme brutalism")
 
 do -- Tree-sitter configuration:
+	vim.treesitter.query.set("go", "highlights", "(comment) @comment")
 	vim.treesitter.query.set("zig", "highlights", "[(line_comment) (doc_comment) (container_doc_comment)] @comment")
 	vim.treesitter.query.set("rust", "highlights", "[(line_comment) (doc_comment) (block_comment)] @comment")
 	vim.treesitter.query.set("javascript", "highlights", "[(comment) (html_comment)] @comment")
@@ -201,6 +202,7 @@ on_event_once("BufWritePost", { -- Linter configuration:
 		})
 
 		lint.linters_by_ft = {
+			go = { "golangcilint" },
 			lua = { "luacheck" },
 			json = { "biomejs" },
 			javascript = { "biomejs" },
@@ -223,6 +225,7 @@ on_event_once("BufWritePost", { -- Formatter configuration:
 		vim.api.nvim_create_autocmd("BufWritePost", { group = "__formatter__", command = ":FormatWrite" })
 
 		local filetype = {
+			go = { require("formatter.filetypes.go").goimports },
 			lua = { require("formatter.filetypes.lua").stylua },
 			json = { require("formatter.filetypes.json").biome },
 			javascript = { require("formatter.filetypes.javascript").biome },
