@@ -6,8 +6,12 @@ do -- Import plugins:
 
 	Plug("ctrlpvim/ctrlp.vim")
 	Plug("hahanein/vim-brutalism")
-
 	Plug("nvim-treesitter/nvim-treesitter", { ["do"] = vim.fn[":TSUpdate"] })
+	Plug("kylechui/nvim-surround")
+	Plug("vim-test/vim-test")
+	Plug("skywind3000/asyncrun.vim")
+	Plug("tpope/vim-fugitive")
+	Plug("rmagatti/auto-session")
 
 	do -- Managed with mason:
 		Plug("williamboman/mason.nvim", { ["do"] = vim.fn[":MasonUpdate"] })
@@ -30,14 +34,6 @@ do -- Import plugins:
 		Plug("jay-babu/mason-nvim-dap.nvim", manual)
 	end
 
-	Plug("kylechui/nvim-surround")
-
-	Plug("vim-test/vim-test")
-	Plug("skywind3000/asyncrun.vim")
-
-	Plug("tpope/vim-fugitive")
-
-	Plug("rmagatti/auto-session")
 	vim.call("plug#end")
 end
 
