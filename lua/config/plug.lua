@@ -7,6 +7,8 @@ do -- Import plugins:
 	Plug("ctrlpvim/ctrlp.vim")
 	Plug("hahanein/vim-brutalism")
 
+	Plug("nvim-treesitter/nvim-treesitter", { ["do"] = vim.fn[":TSUpdate"] })
+
 	do -- Managed with mason:
 		Plug("williamboman/mason.nvim", { ["do"] = vim.fn[":MasonUpdate"] })
 		Plug("williamboman/mason-lspconfig.nvim")
@@ -39,8 +41,6 @@ do -- Import plugins:
 	vim.call("plug#end")
 end
 
-vim.cmd("colorscheme brutalism")
-
 local function on_event_once(event, opts)
 	local id
 	id = vim.api.nvim_create_autocmd(event, {
@@ -58,7 +58,15 @@ local function on_command_once(name, opts)
 	end, {})
 end
 
-do -- Configure ctrlp:
+vim.cmd("colorscheme brutalism")
+
+do -- Tree-sitter configuration:
+	vim.treesitter.query.set("zig", "highlights", "[(line_comment) (doc_comment) (container_doc_comment)] @comment")
+	vim.treesitter.query.set("rust", "highlights", "[(line_comment) (doc_comment) (block_comment)] @comment")
+	require("nvim-treesitter.configs").setup({ highlight = { enable = true } })
+end
+
+do -- Ctrlp configuration:
 	vim.opt.grepprg = "rg --color=never"
 	vim.g.ctrlp_user_command = 'rg %s --files --color=never --glob ""'
 	vim.g.ctrlp_use_caching = false
@@ -121,7 +129,6 @@ do -- Language server configuration:
 				on_attach = function(client, buffer)
 					do -- Use native syntax highlighting:
 						client.server_capabilities.semanticTokensProvider = nil
-						vim.cmd("syntax on") -- Undo turning syntax off
 					end
 
 					do -- Remaps:
@@ -230,7 +237,7 @@ on_event_once("BufWritePost", { -- Formatter configuration:
 				if filetype[vim.bo.filetype] == nil then
 					local bufnr = vim.api.nvim_get_current_buf()
 					local clients = vim.lsp.get_active_clients({ bufnr = bufnr })
-					if #clients > 0 then
+					if #clients > 1 then -- Ignore GitHub Copilot which is always present
 						vim.lsp.buf.format({ async = false })
 					end
 				end
