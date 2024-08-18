@@ -63,6 +63,9 @@ vim.cmd("colorscheme brutalism")
 do -- Tree-sitter configuration:
 	vim.treesitter.query.set("zig", "highlights", "[(line_comment) (doc_comment) (container_doc_comment)] @comment")
 	vim.treesitter.query.set("rust", "highlights", "[(line_comment) (doc_comment) (block_comment)] @comment")
+	vim.treesitter.query.set("javascript", "highlights", "[(comment) (html_comment)] @comment")
+	vim.treesitter.query.set("typescript", "highlights", "[(comment) (html_comment)] @comment")
+	vim.treesitter.query.set("lua", "highlights", "(comment) @comment")
 	require("nvim-treesitter.configs").setup({ highlight = { enable = true } })
 end
 
@@ -79,7 +82,7 @@ on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 	callback = function()
 		local cmp = require("cmp")
 
-		do -- Copilot configuration:
+		do -- GitHub Copilot configuration:
 			require("copilot").setup({ suggestion = { enabled = false }, panel = { enabled = false } })
 			require("copilot_cmp").setup()
 		end
@@ -237,7 +240,7 @@ on_event_once("BufWritePost", { -- Formatter configuration:
 				if filetype[vim.bo.filetype] == nil then
 					local bufnr = vim.api.nvim_get_current_buf()
 					local clients = vim.lsp.get_active_clients({ bufnr = bufnr })
-					if #clients > 1 then -- Ignore GitHub Copilot which is always present
+					if #clients > 1 then -- Ignore GitHub Copilot because it is always present
 						vim.lsp.buf.format({ async = false })
 					end
 				end
