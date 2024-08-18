@@ -18,10 +18,12 @@ do -- Import plugins:
 		Plug("hrsh7th/cmp-cmdline")
 		Plug("hrsh7th/nvim-cmp")
 
-		Plug("mfussenegger/nvim-lint", { ["on"] = {} })
-		Plug("mhartington/formatter.nvim", { ["on"] = {} })
-		Plug("mfussenegger/nvim-dap", { ["on"] = {} })
-		Plug("jay-babu/mason-nvim-dap.nvim", { ["on"] = {} })
+		local manual = { ["on"] = {} }
+
+		Plug("mfussenegger/nvim-lint", manual)
+		Plug("mhartington/formatter.nvim", manual)
+		Plug("mfussenegger/nvim-dap", manual)
+		Plug("jay-babu/mason-nvim-dap.nvim", manual)
 	end
 
 	Plug("kylechui/nvim-surround")
