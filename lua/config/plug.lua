@@ -7,9 +7,6 @@ do -- Import plugins:
 	Plug("ctrlpvim/ctrlp.vim")
 	Plug("hahanein/vim-brutalism")
 
-	Plug("nvim-treesitter/nvim-treesitter", { ["do"] = vim.fn[":TSUpdate"] })
-	Plug("nvim-treesitter/nvim-treesitter-textobjects")
-
 	do -- Managed with mason:
 		Plug("williamboman/mason.nvim", { ["do"] = vim.fn[":MasonUpdate"] })
 		Plug("williamboman/mason-lspconfig.nvim")
@@ -21,11 +18,10 @@ do -- Import plugins:
 		Plug("hrsh7th/cmp-cmdline")
 		Plug("hrsh7th/nvim-cmp")
 
-		Plug("mfussenegger/nvim-lint")
-		Plug("mhartington/formatter.nvim")
-
-		Plug("mfussenegger/nvim-dap")
-		Plug("jay-babu/mason-nvim-dap.nvim")
+		Plug("mfussenegger/nvim-lint", { ["on"] = {} })
+		Plug("mhartington/formatter.nvim", { ["on"] = {} })
+		Plug("mfussenegger/nvim-dap", { ["on"] = {} })
+		Plug("jay-babu/mason-nvim-dap.nvim", { ["on"] = {} })
 	end
 
 	Plug("kylechui/nvim-surround")
@@ -41,6 +37,25 @@ do -- Import plugins:
 	vim.call("plug#end")
 end
 
+vim.cmd("colorscheme brutalism")
+
+local function on_event_once(event, opts)
+	local id
+	id = vim.api.nvim_create_autocmd(event, {
+		callback = function()
+			vim.api.nvim_del_autocmd(id)
+			opts.callback()
+		end,
+	})
+end
+
+local function on_command_once(name, opts)
+	vim.api.nvim_create_user_command(name, function()
+		vim.api.nvim_del_user_command(name)
+		opts.callback()
+	end, {})
+end
+
 do -- Configure ctrlp:
 	vim.opt.grepprg = "rg --color=never"
 	vim.g.ctrlp_user_command = 'rg %s --files --color=never --glob ""'
@@ -48,108 +63,49 @@ do -- Configure ctrlp:
 	vim.g.ctrlp_working_path_mode = false
 end
 
-vim.cmd("colorscheme brutalism")
-
 require("nvim-surround").setup()
 
-require("nvim-treesitter.configs").setup({
-	indent = { enable = true },
-	highlight = { enable = true },
-	incremental_selection = {
-		enable = true,
-		keymaps = {
-			init_selection = "<c-space>",
-			node_incremental = "<c-space>",
-			scope_incremental = "<c-s>",
-			node_decremental = "<c-backspace>",
-		},
-	},
+on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
+	callback = function()
+		local cmp = require("cmp")
 
-	textobjects = {
-		lsp_interop = { enable = true },
-		select = {
-			enable = true,
-			lookahead = true,
-			keymaps = {
-				["aa"] = "@parameter.outer",
-				["ia"] = "@parameter.inner",
-				["af"] = "@function.outer",
-				["if"] = "@function.inner",
-				["ac"] = "@class.outer",
-				["ic"] = "@class.inner",
-				["ii"] = "@conditional.inner",
-				["ai"] = "@conditional.outer",
-				["il"] = "@loop.inner",
-				["al"] = "@loop.outer",
-				["at"] = "@comment.outer",
+		do -- Copilot configuration:
+			require("copilot").setup({ suggestion = { enabled = false }, panel = { enabled = false } })
+			require("copilot_cmp").setup()
+		end
+
+		cmp.setup({
+			snippet = {
+				expand = function(args)
+					vim.snippet.expand(args.body)
+				end,
 			},
-		},
-		move = {
-			enable = true,
-			set_jumps = true,
-			goto_next_start = {
-				["]f"] = "@function.outer",
-				["]]"] = "@class.outer",
-			},
-			goto_next_end = {
-				["]F"] = "@function.outer",
-				["]["] = "@class.outer",
-			},
-			goto_previous_start = {
-				["[f"] = "@function.outer",
-				["[["] = "@class.outer",
-			},
-			goto_previous_end = {
-				["[F"] = "@function.outer",
-				["[]"] = "@class.outer",
-			},
-		},
-		swap = {
-			enable = true,
-			swap_next = {
-				["<leader>a"] = "@parameter.inner",
-			},
-			swap_previous = {
-				["<leader>A"] = "@parameter.inner",
-			},
-		},
-	},
+			mapping = cmp.mapping.preset.insert({
+				["<C-b>"] = cmp.mapping.scroll_docs(-4),
+				["<C-f>"] = cmp.mapping.scroll_docs(4),
+				["<C-Space>"] = cmp.mapping.complete(),
+				["<C-e>"] = cmp.mapping.abort(),
+				["<CR>"] = cmp.mapping.confirm({ select = true }),
+			}),
+			sources = cmp.config.sources({
+				{ name = "copilot" },
+				{ name = "nvim_lsp" },
+				{ name = "buffer" },
+			}),
+		})
+
+		cmp.setup.cmdline({ "/", "?" }, {
+			mapping = cmp.mapping.preset.cmdline(),
+			sources = { { name = "buffer" } },
+		})
+
+		cmp.setup.cmdline(":", {
+			mapping = cmp.mapping.preset.cmdline(),
+			sources = cmp.config.sources({ { name = "path" } }, { { name = "cmdline" } }),
+			matching = { disallow_symbol_nonprefix_matching = false },
+		})
+	end,
 })
-
-do -- Completion configuration:
-	local cmp = require("cmp")
-
-	cmp.setup({
-		snippet = {
-			expand = function(args)
-				vim.snippet.expand(args.body)
-			end,
-		},
-		mapping = cmp.mapping.preset.insert({
-			["<C-b>"] = cmp.mapping.scroll_docs(-4),
-			["<C-f>"] = cmp.mapping.scroll_docs(4),
-			["<C-Space>"] = cmp.mapping.complete(),
-			["<C-e>"] = cmp.mapping.abort(),
-			["<CR>"] = cmp.mapping.confirm({ select = true }),
-		}),
-		sources = cmp.config.sources({
-			{ name = "copilot" },
-			{ name = "nvim_lsp" },
-			{ name = "buffer" },
-		}),
-	})
-
-	cmp.setup.cmdline({ "/", "?" }, {
-		mapping = cmp.mapping.preset.cmdline(),
-		sources = { { name = "buffer" } },
-	})
-
-	cmp.setup.cmdline(":", {
-		mapping = cmp.mapping.preset.cmdline(),
-		sources = cmp.config.sources({ { name = "path" } }, { { name = "cmdline" } }),
-		matching = { disallow_symbol_nonprefix_matching = false },
-	})
-end
 
 require("mason").setup()
 
@@ -161,8 +117,9 @@ do -- Language server configuration:
 			require("lspconfig")[server_name].setup({
 				capabilities = capabilities,
 				on_attach = function(client, buffer)
-					do -- Miscellaneous:
+					do -- Use native syntax highlighting:
 						client.server_capabilities.semanticTokensProvider = nil
+						vim.cmd("syntax on") -- Undo turning syntax off
 					end
 
 					do -- Remaps:
@@ -196,89 +153,98 @@ do -- Language server configuration:
 	})
 end
 
-do -- Debug adapter configuration:
-	local bridge = require("mason-nvim-dap")
-	bridge.setup({ automatic_setup = true, handlers = { bridge.default_setup } })
+on_command_once("DapLoad", { -- Debug adapter configuration:
+	callback = function()
+		vim.fn["plug#load"]("nvim-dap", "mason-nvim-dap.nvim")
 
-	local dap = require("dap")
-	local widgets = require("dap.ui.widgets")
+		local bridge = require("mason-nvim-dap")
+		bridge.setup({ automatic_setup = true, handlers = { bridge.default_setup } })
 
-	vim.keymap.set("n", "<F5>", dap.continue)
-	vim.keymap.set("n", "<F10>", dap.step_over)
-	vim.keymap.set("n", "<F11>", dap.step_into)
-	vim.keymap.set("n", "<F12>", dap.step_out)
-	vim.keymap.set("n", "<Leader>b", dap.toggle_breakpoint)
-	vim.keymap.set("n", "<Leader>dr", dap.repl.open)
-	vim.keymap.set("n", "<Leader>dl", dap.run_last)
-	vim.keymap.set({ "n", "v" }, "<Leader>dp", widgets.preview)
-	vim.keymap.set("n", "<Leader>df", function()
-		widgets.centered_float(widgets.frames, { border = "none" })
-	end)
-	vim.keymap.set("n", "<Leader>ds", function()
-		widgets.centered_float(widgets.scopes, { border = "none" })
-	end)
-end
+		local dap = require("dap")
+		local widgets = require("dap.ui.widgets")
 
-do -- Linter configuration:
-	local lint = require("lint")
-	vim.api.nvim_create_autocmd({ "BufWritePost" }, {
-		callback = function()
-			lint.try_lint()
-		end,
-	})
+		vim.keymap.set("n", "<F5>", dap.continue)
+		vim.keymap.set("n", "<F10>", dap.step_over)
+		vim.keymap.set("n", "<F11>", dap.step_into)
+		vim.keymap.set("n", "<F12>", dap.step_out)
+		vim.keymap.set("n", "<Leader>b", dap.toggle_breakpoint)
+		vim.keymap.set("n", "<Leader>dr", dap.repl.open)
+		vim.keymap.set("n", "<Leader>dl", dap.run_last)
+		vim.keymap.set({ "n", "v" }, "<Leader>dp", widgets.preview)
+		vim.keymap.set("n", "<Leader>df", function()
+			widgets.centered_float(widgets.frames, { border = "none" })
+		end)
+		vim.keymap.set("n", "<Leader>ds", function()
+			widgets.centered_float(widgets.scopes, { border = "none" })
+		end)
+	end,
+})
 
-	lint.linters_by_ft = {
-		lua = { "luacheck" },
-		json = { "biomejs" },
-		javascript = { "biomejs" },
-		typescript = { "biomejs" },
-		html = { "htmlhint" },
-		css = { "stylelint" },
-		bash = { "shellcheck" },
-		c = { "cpplint" },
-	}
-end
+on_event_once("BufWritePost", { -- Linter configuration:
+	callback = function()
+		vim.fn["plug#load"]("nvim-lint")
 
-do -- Formatter configuration:
-	vim.api.nvim_create_augroup("__formatter__", { clear = true })
-	vim.api.nvim_create_autocmd("BufWritePost", { group = "__formatter__", command = ":FormatWrite" })
-	require("formatter").setup({
-		filetype = {
+		local lint = require("lint")
+		vim.api.nvim_create_autocmd("BufWritePost", {
+			callback = function()
+				lint.try_lint()
+			end,
+		})
+
+		lint.linters_by_ft = {
+			lua = { "luacheck" },
+			json = { "biomejs" },
+			javascript = { "biomejs" },
+			typescript = { "biomejs" },
+			html = { "htmlhint" },
+			css = { "stylelint" },
+			bash = { "shellcheck" },
+			c = { "cpplint" },
+		}
+
+		lint.try_lint()
+	end,
+})
+
+on_event_once("BufWritePost", { -- Formatter configuration:
+	callback = function()
+		vim.fn["plug#load"]("formatter.nvim")
+
+		vim.api.nvim_create_augroup("__formatter__", { clear = true })
+		vim.api.nvim_create_autocmd("BufWritePost", { group = "__formatter__", command = ":FormatWrite" })
+
+		local filetype = {
 			lua = { require("formatter.filetypes.lua").stylua },
 			json = { require("formatter.filetypes.json").biome },
 			javascript = { require("formatter.filetypes.javascript").biome },
 			typescript = { require("formatter.filetypes.typescript").biome },
 			javascriptreact = { require("formatter.filetypes.javascript").biome },
 			typescriptreact = { require("formatter.filetypes.typescript").biome },
-			["*"] = { -- Fallback on LSP formatting if available:
-				require("formatter.filetypes.any").remove_trailing_whitespace,
-				function()
-					if
-						require("formatter.config").values.filetype[vim.bo.filetype] == nil
-						and vim.lsp.buf.server_ready ~= nil
-					then
-						vim.lsp.buf.format({ async = true })
-					end
-				end,
-			},
-		},
-	})
-end
+		}
+
+		filetype["*"] = { -- Fallback on LSP formatting if available:
+			require("formatter.filetypes.any").remove_trailing_whitespace,
+			function()
+				if filetype[vim.bo.filetype] == nil and vim.lsp.buf.format ~= nil then
+					vim.lsp.buf.format({ async = false })
+				end
+			end,
+		}
+
+		require("formatter").setup({ filetype = filetype })
+		vim.cmd("FormatWrite")
+	end,
+})
 
 do -- Test configuration:
 	vim.keymap.set("n", "<leader>t", ":TestNearest<CR>")
-	vim.keymap.set("n", "<leader>T", ":TestFile<CR>")
-	vim.keymap.set("n", "<leader>a", ":TestSuite<CR>")
-	vim.keymap.set("n", "<leader>l", ":TestLast<CR>")
-	vim.keymap.set("n", "<leader>g", ":TestVisit<CR>")
+	vim.keymap.set("n", "<leader>tf", ":TestFile<CR>")
+	vim.keymap.set("n", "<leader>ts", ":TestSuite<CR>")
+	vim.keymap.set("n", "<leader>tl", ":TestLast<CR>")
+	vim.keymap.set("n", "<leader>tv", ":TestVisit<CR>")
 
 	vim.g["test#strategy"] = "asyncrun"
 	vim.g.asyncrun_open = 10
 end
 
 vim.o.statusline = "%<%f%h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)%P"
-
-do -- Copilot configuration:
-	require("copilot").setup({ suggestion = { enabled = false }, panel = { enabled = false } })
-	require("copilot_cmp").setup()
-end
