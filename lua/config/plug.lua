@@ -225,10 +225,12 @@ on_event_once("BufWritePost", { -- Formatter configuration:
 		filetype["*"] = { -- Fallback on LSP formatting if available:
 			require("formatter.filetypes.any").remove_trailing_whitespace,
 			function()
-				local bufnr = vim.api.nvim_get_current_buf()
-				local clients = vim.lsp.get_active_clients({ bufnr = bufnr })
-				if filetype[vim.bo.filetype] == nil and #clients > 0 then
-					vim.lsp.buf.format({ async = false })
+				if filetype[vim.bo.filetype] == nil then
+					local bufnr = vim.api.nvim_get_current_buf()
+					local clients = vim.lsp.get_active_clients({ bufnr = bufnr })
+					if #clients > 0 then
+						vim.lsp.buf.format({ async = false })
+					end
 				end
 			end,
 		}
