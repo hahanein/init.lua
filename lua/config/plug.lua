@@ -18,6 +18,7 @@ do -- Import plugins:
 		Plug("williamboman/mason-lspconfig.nvim")
 
 		Plug("neovim/nvim-lspconfig")
+		Plug("hrsh7th/cmp-nvim-lsp-signature-help")
 		Plug("hrsh7th/cmp-nvim-lsp")
 		Plug("hrsh7th/cmp-buffer")
 		Plug("hrsh7th/cmp-path")
@@ -86,6 +87,12 @@ on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 		end
 
 		cmp.setup({
+			completion = {
+				completeopt = "menu,menuone,noinsert",
+			},
+			experimental = {
+				ghost_text = true,
+			},
 			snippet = {
 				expand = function(args)
 					vim.snippet.expand(args.body)
@@ -96,10 +103,12 @@ on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 				["<C-f>"] = cmp.mapping.scroll_docs(4),
 				["<C-Space>"] = cmp.mapping.complete(),
 				["<C-e>"] = cmp.mapping.abort(),
+				["<Tab>"] = cmp.mapping.confirm({ select = true }),
 				["<CR>"] = cmp.mapping.confirm({ select = true }),
 			}),
 			sources = cmp.config.sources({
 				{ name = "copilot" },
+				{ name = "nvim_lsp_signature_help" },
 				{ name = "nvim_lsp" },
 				{ name = "buffer" },
 			}),
@@ -143,7 +152,6 @@ do -- Language server configuration:
 						vim.keymap.set("n", "gS", vim.lsp.buf.workspace_symbol, opts)
 						vim.keymap.set("n", "gA", vim.lsp.buf.references, opts)
 						vim.keymap.set("n", "cd", vim.lsp.buf.rename, opts)
-						vim.keymap.set("i", "<C-h>", vim.lsp.buf.signature_help, opts)
 						vim.keymap.set("n", "[d", vim.diagnostic.goto_next, opts)
 						vim.keymap.set("n", "]d", vim.diagnostic.goto_prev, opts)
 					end
