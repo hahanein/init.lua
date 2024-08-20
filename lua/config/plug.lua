@@ -8,22 +8,22 @@ do -- Import plugins:
 	Plug("hahanein/vim-brutalism")
 	Plug("nvim-treesitter/nvim-treesitter", { ["do"] = vim.fn[":TSUpdate"] })
 	Plug("kylechui/nvim-surround")
-	Plug("vim-test/vim-test")
-	Plug("skywind3000/asyncrun.vim")
 	Plug("tpope/vim-fugitive")
 	Plug("rmagatti/auto-session")
+
+	Plug("vim-test/vim-test")
+	Plug("skywind3000/asyncrun.vim")
 
 	do -- Managed with mason:
 		Plug("williamboman/mason.nvim", { ["do"] = vim.fn[":MasonUpdate"] })
 		Plug("williamboman/mason-lspconfig.nvim")
-
 		Plug("neovim/nvim-lspconfig")
-		Plug("hrsh7th/cmp-nvim-lsp-signature-help")
-		Plug("hrsh7th/cmp-nvim-lsp")
-		Plug("hrsh7th/cmp-buffer")
-		Plug("hrsh7th/cmp-path")
-		Plug("hrsh7th/cmp-cmdline")
 		Plug("hrsh7th/nvim-cmp")
+		Plug("hrsh7th/cmp-cmdline")
+		Plug("hrsh7th/cmp-path")
+		Plug("hrsh7th/cmp-buffer")
+		Plug("hrsh7th/cmp-nvim-lsp")
+		Plug("hrsh7th/cmp-nvim-lsp-signature-help")
 		Plug("zbirenbaum/copilot.lua")
 		Plug("zbirenbaum/copilot-cmp")
 
@@ -157,8 +157,8 @@ do -- Language server configuration:
 					end
 
 					do -- Present diagnostics in floating window:
-						vim.diagnostic.config({ virtual_text = false, signs = false })
-						vim.o.updatetime = 250
+						vim.diagnostic.config({ virtual_text = false })
+						vim.o.updatetime = 50
 						vim.api.nvim_create_autocmd("CursorHold", {
 							callback = function()
 								vim.diagnostic.open_float(nil, { focusable = false, scope = "cursor" })
