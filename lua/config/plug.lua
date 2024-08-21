@@ -24,8 +24,6 @@ do -- Import plugins:
 		Plug("hrsh7th/cmp-buffer")
 		Plug("hrsh7th/cmp-nvim-lsp")
 		Plug("hrsh7th/cmp-nvim-lsp-signature-help")
-		Plug("zbirenbaum/copilot.lua")
-		Plug("zbirenbaum/copilot-cmp")
 
 		local manual = { ["on"] = {} }
 
@@ -81,11 +79,6 @@ on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 	callback = function()
 		local cmp = require("cmp")
 
-		do -- GitHub Copilot configuration:
-			require("copilot").setup({ suggestion = { enabled = false }, panel = { enabled = false } })
-			require("copilot_cmp").setup()
-		end
-
 		cmp.setup({
 			completion = {
 				completeopt = "menu,menuone,noinsert",
@@ -107,7 +100,6 @@ on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 				["<CR>"] = cmp.mapping.confirm({ select = true }),
 			}),
 			sources = cmp.config.sources({
-				{ name = "copilot" },
 				{ name = "nvim_lsp_signature_help" },
 				{ name = "nvim_lsp" },
 				{ name = "buffer" },
@@ -248,7 +240,7 @@ on_event_once("BufWritePost", { -- Formatter configuration:
 				if filetype[vim.bo.filetype] == nil then
 					local bufnr = vim.api.nvim_get_current_buf()
 					local clients = vim.lsp.get_active_clients({ bufnr = bufnr })
-					if #clients > 1 then -- Ignore GitHub Copilot because it is always present
+					if #clients > 0 then
 						vim.lsp.buf.format({ async = false })
 					end
 				end
