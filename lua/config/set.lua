@@ -20,6 +20,12 @@ vim.opt.backupskip = "/var/tmp/*"
 vim.opt.directory = "/var/tmp"
 vim.opt.writebackup = true
 
+-- Remove context menu "mouse support" items:
+vim.cmd([[
+  aunmenu PopUp.How-to\ disable\ mouse
+  aunmenu PopUp.-1-
+]])
+
 vim.opt.fillchars:append({
 	vert = "|", -- Vertical split separator
 	stl = "^", -- Horizontal split separator
