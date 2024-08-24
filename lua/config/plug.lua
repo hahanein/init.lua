@@ -1,4 +1,3 @@
-local vim = vim ---@diagnostic disable-line
 local Plug = vim.fn["plug#"]
 
 do -- Import plugins:
@@ -11,7 +10,8 @@ do -- Import plugins:
 	Plug("tpope/vim-fugitive")
 	Plug("rmagatti/auto-session")
 
-	Plug("vim-test/vim-test")
+	-- Plug("vim-test/vim-test")
+	Plug("hahanein/vim-test", { branch = "zigtest-custom-command" })
 	Plug("skywind3000/asyncrun.vim")
 
 	do -- Managed with mason:
@@ -122,11 +122,25 @@ on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 require("mason").setup()
 
 do -- Language server configuration:
+	local settings = { -- Language specific configuration:
+		Lua = {
+			-- You need to also add "vim" as a global to your .luacheckrc or else the
+			-- linter will keep complaining about it.
+			workspace = {
+				library = {
+					[vim.fn.expand("$VIMRUNTIME/lua")] = true,
+					[vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true,
+				},
+			},
+		},
+	}
+
 	local capabilities = require("cmp_nvim_lsp").default_capabilities()
 	require("mason-lspconfig").setup()
 	require("mason-lspconfig").setup_handlers({
 		function(server_name)
 			require("lspconfig")[server_name].setup({
+				settings = settings,
 				capabilities = capabilities,
 				on_attach = function(client, buffer)
 					do -- Use native syntax highlighting:
@@ -239,7 +253,7 @@ on_event_once("BufWritePost", { -- Formatter configuration:
 			function()
 				if filetype[vim.bo.filetype] == nil then
 					local bufnr = vim.api.nvim_get_current_buf()
-					local clients = vim.lsp.get_active_clients({ bufnr = bufnr })
+					local clients = vim.lsp.get_clients({ bufnr = bufnr })
 					if #clients > 0 then
 						vim.lsp.buf.format({ async = false })
 					end
