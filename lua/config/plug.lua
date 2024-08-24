@@ -267,7 +267,7 @@ on_event_once("BufWritePost", { -- Formatter configuration:
 })
 
 do -- Test configuration:
-	vim.keymap.set("n", "<leader>t", ":TestNearest<CR>")
+	vim.keymap.set("n", "<leader>tn", ":TestNearest<CR>")
 	vim.keymap.set("n", "<leader>tf", ":TestFile<CR>")
 	vim.keymap.set("n", "<leader>ts", ":TestSuite<CR>")
 	vim.keymap.set("n", "<leader>tl", ":TestLast<CR>")
