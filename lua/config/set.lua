@@ -27,6 +27,7 @@ vim.cmd([[
 ]])
 
 vim.opt.fillchars:append({
-	vert = "|", -- Vertical split separator
-	stl = "^", -- Horizontal split separator
+	vert = "|",
+	stl = "^",
+	stlnc = "-",
 })
