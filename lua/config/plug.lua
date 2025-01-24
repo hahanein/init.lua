@@ -14,8 +14,6 @@ do -- Import plugins:
 	Plug("hahanein/nvim-test")
 	Plug("skywind3000/asyncrun.vim")
 
-	Plug("supermaven-inc/supermaven-nvim")
-
 	do -- Managed with mason:
 		Plug("williamboman/mason.nvim", { ["do"] = vim.fn[":MasonUpdate"] })
 		Plug("williamboman/mason-lspconfig.nvim")
@@ -76,7 +74,6 @@ do -- Ctrlp configuration:
 end
 
 require("nvim-surround").setup()
-require("supermaven-nvim").setup({})
 
 on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 	callback = function()
@@ -103,7 +100,6 @@ on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 				["<CR>"] = cmp.mapping.confirm({ select = true }),
 			}),
 			sources = cmp.config.sources({
-				{ name = "supermaven" },
 				{ name = "nvim_lsp_signature_help" },
 				{ name = "nvim_lsp" },
 				{ name = "buffer" },
