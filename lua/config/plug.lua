@@ -227,9 +227,6 @@ on_event_once("BufWritePost", { -- Linter configuration:
 		lint.linters_by_ft = {
 			go = { "golangcilint" },
 			lua = { "luacheck" },
-			json = { "biomejs" },
-			javascript = { "biomejs" },
-			typescript = { "biomejs" },
 			html = { "htmlhint" },
 			css = { "stylelint" },
 			bash = { "shellcheck" },
@@ -250,11 +247,11 @@ on_event_once("BufWritePost", { -- Formatter configuration:
 		local filetype = {
 			go = { require("formatter.filetypes.go").goimports },
 			lua = { require("formatter.filetypes.lua").stylua },
-			json = { require("formatter.filetypes.json").biome },
-			javascript = { require("formatter.filetypes.javascript").biome },
-			typescript = { require("formatter.filetypes.typescript").biome },
-			javascriptreact = { require("formatter.filetypes.javascript").biome },
-			typescriptreact = { require("formatter.filetypes.typescript").biome },
+			json = { require("formatter.filetypes.json").prettier },
+			javascript = { require("formatter.filetypes.javascript").prettier },
+			typescript = { require("formatter.filetypes.typescript").prettier },
+			javascriptreact = { require("formatter.filetypes.javascript").prettier },
+			typescriptreact = { require("formatter.filetypes.typescript").prettier },
 		}
 
 		filetype["*"] = { -- Fallback on LSP formatting if available:
