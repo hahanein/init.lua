@@ -57,7 +57,7 @@ vim.cmd("colorscheme brutalism")
 
 do -- Tree-sitter configuration:
 	vim.treesitter.query.set("go", "highlights", "(comment) @comment")
-	vim.treesitter.query.set("zig", "highlights", "[(line_comment) (doc_comment) (container_doc_comment)] @comment")
+	vim.treesitter.query.set("zig", "highlights", "(comment) @comment")
 	vim.treesitter.query.set("rust", "highlights", "[(line_comment) (doc_comment) (block_comment)] @comment")
 	vim.treesitter.query.set("javascript", "highlights", "[(comment) (html_comment)] @comment")
 	vim.treesitter.query.set("typescript", "highlights", "[(comment) (html_comment)] @comment")
@@ -66,7 +66,6 @@ do -- Tree-sitter configuration:
 end
 
 do -- Ctrlp configuration:
-	vim.opt.grepprg = "rg --color=never"
 	vim.g.ctrlp_user_command = 'rg %s --files --color=never --glob ""'
 	vim.g.ctrlp_use_caching = false
 	vim.g.ctrlp_working_path_mode = false
