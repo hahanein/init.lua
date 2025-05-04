@@ -10,8 +10,6 @@ do -- Import plugins:
 	Plug("tpope/vim-fugitive")
 	Plug("rmagatti/auto-session")
 
-	-- Plug("vim-test/vim-test")
-	Plug("hahanein/nvim-test")
 	Plug("skywind3000/asyncrun.vim")
 
 	do -- Managed with mason:
@@ -166,8 +164,12 @@ do -- Language server configuration:
 						vim.keymap.set("n", "gS", vim.lsp.buf.workspace_symbol, opts)
 						vim.keymap.set("n", "gA", vim.lsp.buf.references, opts)
 						vim.keymap.set("n", "cd", vim.lsp.buf.rename, opts)
-						vim.keymap.set("n", "[d", vim.diagnostic.goto_next, opts)
-						vim.keymap.set("n", "]d", vim.diagnostic.goto_prev, opts)
+						vim.keymap.set("n", "[d", function()
+							vim.diagnostic.jump({ count = 1, float = true })
+						end, opts)
+						vim.keymap.set("n", "]d", function()
+							vim.diagnostic.jump({ count = -1, float = true })
+						end, opts)
 					end
 
 					do -- Present diagnostics in floating window:
@@ -270,17 +272,6 @@ on_event_once("BufWritePost", { -- Formatter configuration:
 		vim.cmd("FormatWrite")
 	end,
 })
-
-do -- Test configuration:
-	vim.keymap.set("n", "<leader>tn", ":TestNearest<CR>")
-	vim.keymap.set("n", "<leader>tf", ":TestFile<CR>")
-	vim.keymap.set("n", "<leader>ts", ":TestSuite<CR>")
-	vim.keymap.set("n", "<leader>tl", ":TestLast<CR>")
-	vim.keymap.set("n", "<leader>tv", ":TestVisit<CR>")
-
-	vim.g["test#strategy"] = "asyncrun"
-	vim.g.asyncrun_open = 10
-end
 
 vim.o.statusline = "%<%f%h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)%P"
 
