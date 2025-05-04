@@ -10,8 +10,6 @@ do -- Import plugins:
 	Plug("tpope/vim-fugitive")
 	Plug("rmagatti/auto-session")
 
-	Plug("skywind3000/asyncrun.vim")
-
 	do -- Managed with mason:
 		Plug("williamboman/mason.nvim", { ["do"] = vim.fn[":MasonUpdate"] })
 		Plug("williamboman/mason-lspconfig.nvim")
