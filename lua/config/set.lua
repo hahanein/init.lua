@@ -33,10 +33,10 @@ vim.opt.fillchars:append({
 })
 
 do -- Use ripgrep and auto-open quickfix list:
-vim.opt.grepprg = "rg --vimgrep --color=never"
-vim.opt.grepformat = "%f:%l:%c:%m"
-vim.api.nvim_create_autocmd("QuickFixCmdPost", {
-	pattern = { "grep", "grepadd" },
-	command = "cwindow"
-})
+	vim.opt.grepprg = "rg --vimgrep --color=never"
+	vim.opt.grepformat = "%f:%l:%c:%m"
+	vim.api.nvim_create_autocmd("QuickFixCmdPost", {
+		pattern = { "grep", "grepadd" },
+		command = "cwindow",
+	})
 end
