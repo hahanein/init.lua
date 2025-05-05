@@ -283,9 +283,11 @@ on_event_once("BufWritePost", { -- Formatter configuration:
 	end,
 })
 
-vim.o.statusline = "%<%f%h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)%P"
+do -- Git configuration:
+	vim.o.statusline = "%<%f%h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)%P"
+end
 
-require("auto-session").setup({ auto_session_suppress_dirs = { "~/", "~/projects", "~/downloads", "/" } })
+require("auto-session").setup({ auto_session_suppress_dirs = { "~/", "~/projects", "~/downloads", "~/desktop", "/" } })
 
 require("minuet").setup({
 	add_single_line_entry = false,
