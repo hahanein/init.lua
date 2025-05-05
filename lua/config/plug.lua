@@ -10,6 +10,10 @@ do -- Import plugins:
 	Plug("tpope/vim-fugitive")
 	Plug("rmagatti/auto-session")
 
+	-- Plug("github/copilot.vim")
+	Plug("nvim-lua/plenary.nvim")
+	Plug("milanglacier/minuet-ai.nvim")
+
 	do -- Managed with mason:
 		Plug("williamboman/mason.nvim", { ["do"] = vim.fn[":MasonUpdate"] })
 		Plug("williamboman/mason-lspconfig.nvim")
@@ -77,6 +81,10 @@ on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 		cmp.setup({
 			completion = {
 				completeopt = "menu,menuone,noinsert",
+				autocomplete = {
+					cmp.TriggerEvent.InsertEnter,
+					cmp.TriggerEvent.TextChanged,
+				},
 			},
 			experimental = {
 				ghost_text = true,
@@ -95,10 +103,14 @@ on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 				["<CR>"] = cmp.mapping.confirm({ select = true }),
 			}),
 			sources = cmp.config.sources({
+				{ name = "minuet" },
 				{ name = "nvim_lsp_signature_help" },
 				{ name = "nvim_lsp" },
 				{ name = "buffer" },
 			}),
+			performance = {
+				fetching_timeout = 2000,
+			},
 		})
 
 		cmp.setup.cmdline({ "/", "?" }, {
@@ -274,3 +286,18 @@ on_event_once("BufWritePost", { -- Formatter configuration:
 vim.o.statusline = "%<%f%h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)%P"
 
 require("auto-session").setup({ auto_session_suppress_dirs = { "~/", "~/projects", "~/downloads", "/" } })
+
+require("minuet").setup({
+	add_single_line_entry = false,
+	provider = "codestral",
+	provider_options = {
+		codestral = {
+			end_point = "https://api.mistral.ai/v1/fim/completions",
+			api_key = "MISTRAL_API_KEY",
+			optional = {
+				stop = { "\n\n" },
+				max_tokens = 1024,
+			},
+		},
+	},
+})
