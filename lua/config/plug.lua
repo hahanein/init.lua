@@ -81,10 +81,6 @@ on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 		cmp.setup({
 			completion = {
 				completeopt = "menu,menuone,noinsert",
-				autocomplete = {
-					cmp.TriggerEvent.InsertEnter,
-					cmp.TriggerEvent.TextChanged,
-				},
 			},
 			experimental = {
 				ghost_text = true,
@@ -109,7 +105,7 @@ on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 				{ name = "buffer" },
 			}),
 			performance = {
-				fetching_timeout = 2000,
+				fetching_timeout = 900,
 			},
 		})
 
@@ -291,6 +287,7 @@ require("auto-session").setup({ auto_session_suppress_dirs = { "~/", "~/projects
 
 require("minuet").setup({
 	add_single_line_entry = false,
+	n_completions = 1,
 	provider = "codestral",
 	provider_options = {
 		codestral = {
@@ -298,7 +295,7 @@ require("minuet").setup({
 			api_key = "MISTRAL_API_KEY",
 			optional = {
 				stop = { "\n\n" },
-				max_tokens = 1024,
+				max_tokens = 256,
 			},
 		},
 	},
