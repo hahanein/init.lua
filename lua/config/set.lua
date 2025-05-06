@@ -12,7 +12,6 @@ vim.opt.wildmenu = true -- visual autocomplete for command menu
 vim.opt.termguicolors = false
 vim.opt.wrap = false
 vim.opt.signcolumn = "yes"
-vim.opt.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
 vim.opt.backup = true
 vim.opt.backupdir = "/var/tmp"
