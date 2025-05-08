@@ -289,7 +289,7 @@ do -- Harpoon configuration:
 	vim.keymap.set("n", "<C-e>", function()
 		harpoon.ui:toggle_quick_menu(harpoon:list())
 	end)
-	for i = 1, 9 do
+	for i = 1, 5 do
 		vim.keymap.set("n", string.format("<C-%d>", i), function()
 			harpoon:list():select(i)
 		end)
