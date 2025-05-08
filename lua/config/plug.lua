@@ -134,61 +134,60 @@ require("mason").setup({
 })
 
 do -- Language server configuration:
-	local settings = { -- Language specific configuration:
-		Lua = {
-			-- You need to also add "vim" as a global to your .luacheckrc or else the
-			-- linter will keep complaining about it.
-			workspace = {
-				library = {
-					[vim.fn.expand("$VIMRUNTIME/lua")] = true,
-					[vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true,
+	local config = {
+		settings = { -- Language specific configuration:
+			Lua = {
+				-- You need to also add "vim" as a global to your .luacheckrc or else the
+				-- linter will keep complaining about it.
+				workspace = {
+					library = {
+						[vim.fn.expand("$VIMRUNTIME/lua")] = true,
+						[vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true,
+					},
 				},
 			},
 		},
+		capabilities = require("cmp_nvim_lsp").default_capabilities(),
+		on_attach = function(client, buffer)
+			do -- Use native syntax highlighting:
+				client.server_capabilities.semanticTokensProvider = nil
+			end
+
+			do -- Remaps:
+				local opts = { buffer = buffer }
+				vim.keymap.set("n", "g.", vim.lsp.buf.code_action, opts)
+				vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+				vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+				vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, opts)
+				vim.keymap.set("n", "gI", vim.lsp.buf.implementation, opts)
+				vim.keymap.set("n", "gs", vim.lsp.buf.document_symbol, opts)
+				vim.keymap.set("n", "gS", vim.lsp.buf.workspace_symbol, opts)
+				vim.keymap.set("n", "gA", vim.lsp.buf.references, opts)
+				vim.keymap.set("n", "cd", vim.lsp.buf.rename, opts)
+				vim.keymap.set("n", "[d", function()
+					vim.diagnostic.jump({ count = 1, float = true })
+				end, opts)
+				vim.keymap.set("n", "]d", function()
+					vim.diagnostic.jump({ count = -1, float = true })
+				end, opts)
+			end
+
+			do -- Present diagnostics in floating window:
+				vim.diagnostic.config({ virtual_text = false })
+				vim.o.updatetime = 50
+				vim.api.nvim_create_autocmd("CursorHold", {
+					callback = function()
+						vim.diagnostic.open_float(nil, { focusable = false, scope = "cursor" })
+					end,
+				})
+			end
+		end,
 	}
 
-	local capabilities = require("cmp_nvim_lsp").default_capabilities()
-	local lspconfig = require("mason-lspconfig")
-	lspconfig.setup()
-	for _, server in ipairs(lspconfig.get_installed_servers()) do
-		vim.lsp.config(server, {
-			settings = settings,
-			capabilities = capabilities,
-			on_attach = function(client, buffer)
-				do -- Use native syntax highlighting:
-					client.server_capabilities.semanticTokensProvider = nil
-				end
-
-				do -- Remaps:
-					local opts = { buffer = buffer }
-					vim.keymap.set("n", "g.", vim.lsp.buf.code_action, opts)
-					vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-					vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-					vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, opts)
-					vim.keymap.set("n", "gI", vim.lsp.buf.implementation, opts)
-					vim.keymap.set("n", "gs", vim.lsp.buf.document_symbol, opts)
-					vim.keymap.set("n", "gS", vim.lsp.buf.workspace_symbol, opts)
-					vim.keymap.set("n", "gA", vim.lsp.buf.references, opts)
-					vim.keymap.set("n", "cd", vim.lsp.buf.rename, opts)
-					vim.keymap.set("n", "[d", function()
-						vim.diagnostic.jump({ count = 1, float = true })
-					end, opts)
-					vim.keymap.set("n", "]d", function()
-						vim.diagnostic.jump({ count = -1, float = true })
-					end, opts)
-				end
-
-				do -- Present diagnostics in floating window:
-					vim.diagnostic.config({ virtual_text = false })
-					vim.o.updatetime = 50
-					vim.api.nvim_create_autocmd("CursorHold", {
-						callback = function()
-							vim.diagnostic.open_float(nil, { focusable = false, scope = "cursor" })
-						end,
-					})
-				end
-			end,
-		})
+	local mason_lspconfig = require("mason-lspconfig")
+	mason_lspconfig.setup()
+	for _, server in ipairs(mason_lspconfig.get_installed_servers()) do
+		vim.lsp.config(server, config)
 	end
 end
 
