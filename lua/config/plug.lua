@@ -8,9 +8,12 @@ do -- Import plugins:
 	Plug("nvim-treesitter/nvim-treesitter", { ["do"] = vim.fn[":TSUpdate"] })
 	Plug("kylechui/nvim-surround")
 	Plug("tpope/vim-fugitive")
+	Plug("rmagatti/auto-session")
 
-	Plug("nvim-lua/plenary.nvim")
-	Plug("milanglacier/minuet-ai.nvim")
+	do -- Depends on plenary.nvim:
+		Plug("nvim-lua/plenary.nvim")
+		Plug("milanglacier/minuet-ai.nvim")
+	end
 
 	do -- Managed with mason:
 		Plug("williamboman/mason.nvim", { ["do"] = vim.fn[":MasonUpdate"] })
@@ -94,7 +97,6 @@ on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 				["<C-Space>"] = cmp.mapping.complete(),
 				["<C-e>"] = cmp.mapping.abort(),
 				["<Tab>"] = cmp.mapping.confirm({ select = true }),
-				["<CR>"] = cmp.mapping.confirm({ select = true }),
 			}),
 			sources = cmp.config.sources({
 				{ name = "minuet" },
@@ -280,6 +282,8 @@ on_event_once("BufWritePost", { -- Formatter configuration:
 do -- Git configuration:
 	vim.o.statusline = "%<%f%h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)%P"
 end
+
+require("auto-session").setup({ auto_session_suppress_dirs = { "~/", "~/projects", "~/downloads", "~/desktop", "/" } })
 
 require("minuet").setup({
 	add_single_line_entry = false,
