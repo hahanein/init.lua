@@ -8,11 +8,11 @@ do -- Import plugins:
 	Plug("nvim-treesitter/nvim-treesitter", { ["do"] = vim.fn[":TSUpdate"] })
 	Plug("kylechui/nvim-surround")
 	Plug("tpope/vim-fugitive")
-	Plug("rmagatti/auto-session")
 
 	do -- Depends on plenary.nvim:
 		Plug("nvim-lua/plenary.nvim")
 		Plug("milanglacier/minuet-ai.nvim")
+		Plug("ThePrimeagen/harpoon", { ["branch"] = "harpoon2" })
 	end
 
 	do -- Managed with mason:
@@ -70,7 +70,6 @@ do -- Ctrlp configuration:
 	vim.g.ctrlp_user_command = 'rg %s --files --color=never --glob ""'
 	vim.g.ctrlp_use_caching = false
 	vim.g.ctrlp_working_path_mode = false
-	vim.keymap.set("n", "<C-e>", ":CtrlPBuffer<CR>")
 end
 
 require("nvim-surround").setup()
@@ -281,17 +280,15 @@ do -- Git configuration:
 	vim.o.statusline = "%<%f%h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)%P"
 end
 
-do -- Session configuration:
-	vim.opt.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
-	require("auto-session").setup({
-		auto_session_suppress_dirs = {
-			"~/",
-			"~/projects",
-			"~/downloads",
-			"~/desktop",
-			"/",
-		},
-	})
+do -- Harpoon configuration:
+	local harpoon = require("harpoon")
+	harpoon:setup()
+	vim.keymap.set("n", "<leader>a", function()
+		harpoon:list():add()
+	end)
+	vim.keymap.set("n", "<C-e>", function()
+		harpoon.ui:toggle_quick_menu(harpoon:list())
+	end)
 end
 
 require("minuet").setup({
