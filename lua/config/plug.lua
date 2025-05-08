@@ -283,7 +283,18 @@ do -- Git configuration:
 	vim.o.statusline = "%<%f%h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)%P"
 end
 
-require("auto-session").setup({ auto_session_suppress_dirs = { "~/", "~/projects", "~/downloads", "~/desktop", "/" } })
+do -- Session configuration:
+	vim.opt.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+	require("auto-session").setup({
+		auto_session_suppress_dirs = {
+			"~/",
+			"~/projects",
+			"~/downloads",
+			"~/desktop",
+			"/",
+		},
+	})
+end
 
 require("minuet").setup({
 	add_single_line_entry = false,
