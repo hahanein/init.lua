@@ -283,16 +283,44 @@ end
 do -- Harpoon configuration:
 	local harpoon = require("harpoon")
 	harpoon:setup()
-	harpoon:extend(require("harpoon.extensions").builtins.highlight_current_file())
-	vim.keymap.set("n", "<leader>a", function()
-		harpoon:list():add()
-	end)
+
+	local function update()
+		local current_buf = vim.api.nvim_get_current_buf()
+		local current_name = vim.api.nvim_buf_get_name(current_buf)
+		current_name = vim.fn.fnamemodify(current_name, ":~:.")
+		local items = harpoon:list():display()
+		local tabline = ""
+
+		for _, item in ipairs(items) do
+			local is_active = item == current_name
+			local hl_group = is_active and "TabLineSel" or "TabLine"
+			tabline = tabline .. string.format(" %%#%s# %s", hl_group, item)
+		end
+
+		if #items == 0 then
+			vim.opt.tabline = ""
+			vim.opt.showtabline = 0
+		else
+			vim.opt.tabline = tabline .. "%#TabLineFill#"
+			vim.opt.showtabline = 2
+		end
+	end
+
+	vim.api.nvim_create_autocmd({ "BufEnter", "User" }, { callback = update })
+
 	vim.keymap.set("n", "<C-e>", function()
 		harpoon.ui:toggle_quick_menu(harpoon:list())
 	end)
+
+	vim.keymap.set("n", "<leader>a", function()
+		harpoon:list():add()
+		update()
+	end)
+
 	for i = 1, 5 do
 		vim.keymap.set("n", string.format("<C-%d>", i), function()
 			harpoon:list():select(i)
+			update()
 		end)
 	end
 end
