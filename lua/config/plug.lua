@@ -331,12 +331,12 @@ do -- Harpoon configuration:
 	end)
 
 	vim.keymap.set("n", "<leader>t", function()
-		harpoon:list():next()
+		harpoon:list():next({ ui_nav_wrap = true })
 		render()
 	end)
 
 	vim.keymap.set("n", "<leader>T", function()
-		harpoon:list():prev()
+		harpoon:list():prev({ ui_nav_wrap = true })
 		render()
 	end)
 
