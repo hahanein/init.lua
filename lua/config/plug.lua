@@ -280,51 +280,6 @@ do -- Git configuration:
 	vim.o.statusline = "%<%f%h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)%P"
 end
 
-do -- Harpoon configuration:
-	local harpoon = require("harpoon")
-	harpoon:setup()
-
-	local function update()
-		local current_buf = vim.api.nvim_get_current_buf()
-		local current_name = vim.api.nvim_buf_get_name(current_buf)
-		current_name = vim.fn.fnamemodify(current_name, ":~:.")
-		local items = harpoon:list():display()
-		local tabline = ""
-
-		for _, item in ipairs(items) do
-			local is_active = item == current_name
-			local hl_group = is_active and "TabLineSel" or "TabLine"
-			tabline = tabline .. string.format(" %%#%s# %s", hl_group, item)
-		end
-
-		if #items == 0 then
-			vim.opt.tabline = ""
-			vim.opt.showtabline = 0
-		else
-			vim.opt.tabline = tabline .. "%#TabLineFill#"
-			vim.opt.showtabline = 2
-		end
-	end
-
-	vim.api.nvim_create_autocmd({ "BufEnter", "User" }, { callback = update })
-
-	vim.keymap.set("n", "<C-e>", function()
-		harpoon.ui:toggle_quick_menu(harpoon:list())
-	end)
-
-	vim.keymap.set("n", "<leader>a", function()
-		harpoon:list():add()
-		update()
-	end)
-
-	for i = 1, 5 do
-		vim.keymap.set("n", string.format("<C-%d>", i), function()
-			harpoon:list():select(i)
-			update()
-		end)
-	end
-end
-
 require("minuet").setup({
 	add_single_line_entry = false,
 	n_completions = 1,
@@ -340,3 +295,101 @@ require("minuet").setup({
 		},
 	},
 })
+
+do -- Harpoon configuration:
+	local harpoon = require("harpoon")
+	harpoon:setup()
+
+	local function render()
+		local current_buf = vim.api.nvim_get_current_buf()
+		local current_file = vim.api.nvim_buf_get_name(current_buf)
+		local current_file_relative = vim.fn.fnamemodify(current_file, ":~:.")
+		local items = harpoon:list():display()
+		local tabline = ""
+
+		for _, item in ipairs(items) do
+			local is_active = item == current_file_relative
+			local hl_group = is_active and "TabLineSel" or "TabLine"
+			local compact_item = item:gsub("([^/])[^/]+/", "%1/")
+			tabline = tabline .. string.format(" %%#%s# %s", hl_group, compact_item)
+		end
+
+		if #items == 0 then
+			vim.opt.tabline = ""
+			vim.opt.showtabline = 0
+		else
+			vim.opt.tabline = tabline .. "%#TabLineFill#"
+			vim.opt.showtabline = 2
+		end
+	end
+
+	vim.api.nvim_create_autocmd({ "BufEnter", "User" }, { callback = render })
+
+	vim.keymap.set("n", "<leader>a", function()
+		harpoon:list():add()
+		render()
+	end)
+
+	vim.keymap.set("n", "<leader>t", function()
+		harpoon:list():next()
+		render()
+	end)
+
+	vim.keymap.set("n", "<leader>T", function()
+		harpoon:list():prev()
+		render()
+	end)
+
+	for i = 1, 9 do
+		vim.keymap.set("n", string.format("<leader>%d", i), function()
+			harpoon:list():select(i)
+			render()
+		end)
+	end
+
+	vim.keymap.set("n", "<leader>dG", function()
+		harpoon:list():clear()
+		render()
+	end)
+
+	vim.keymap.set("n", "<leader>dd", function()
+		local list = harpoon:list()
+		local current_buf = vim.api.nvim_get_current_buf()
+		local current_file = vim.api.nvim_buf_get_name(current_buf)
+		local current_file_relative = vim.fn.fnamemodify(current_file, ":~:.")
+		local items = list:display()
+
+		local found_idx = nil
+		for i, item in ipairs(items) do
+			if item == current_file_relative then
+				found_idx = i
+				break
+			end
+		end
+
+		local length = list:length()
+		if found_idx then
+			if found_idx < length then
+				for i = found_idx, length - 1 do
+					list:replace_at(i, list:get(i + 1))
+				end
+				list:remove_at(length)
+				list:select(found_idx)
+			else
+				list:remove_at(found_idx)
+				if length > 1 then
+					list:select(length - 1)
+				end
+			end
+		else
+			if length > 0 then
+				list:remove_at(length)
+				if length > 1 then
+					list:select(length - 1)
+				end
+			end
+		end
+
+		render()
+	end)
+end
