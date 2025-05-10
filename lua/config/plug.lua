@@ -70,6 +70,7 @@ do -- Ctrlp configuration:
 	vim.g.ctrlp_user_command = 'rg %s --files --color=never --glob ""'
 	vim.g.ctrlp_use_caching = false
 	vim.g.ctrlp_working_path_mode = false
+	vim.g.ctrlp_match_window = "top,order:btt,min:1,max:10,results:10"
 end
 
 require("nvim-surround").setup()
@@ -300,21 +301,61 @@ do -- Harpoon configuration:
 	local harpoon = require("harpoon")
 	harpoon:setup()
 
-	local function render()
-		local current_buf = vim.api.nvim_get_current_buf()
-		local current_file = vim.api.nvim_buf_get_name(current_buf)
-		local current_file_relative = vim.fn.fnamemodify(current_file, ":~:.")
-		local items = harpoon:list():display()
-		local tabline = ""
-
-		for _, item in ipairs(items) do
-			local is_active = item == current_file_relative
-			local hl_group = is_active and "TabLineSel" or "TabLine"
-			local compact_item = item:gsub("([^/])[^/]+/", "%1/")
-			tabline = tabline .. string.format(" %%#%s# %s", hl_group, compact_item)
+	--- Get the active buffer's file name.
+	--- @return string
+	local function get_active_fname()
+		local buffer = vim.api.nvim_get_current_buf()
+		local fname = vim.api.nvim_buf_get_name(buffer)
+		if fname == "" then
+			return ""
 		end
 
-		if #items == 0 then
+		local abs = vim.fn.fnamemodify(fname, ":p")
+		local cwd = vim.fn.getcwd() .. "/"
+		if abs:find(cwd, 1, true) then
+			return abs:sub(#cwd + 1)
+		else
+			return abs
+		end
+	end
+
+	--- Whether the provided item value is the active buffer.
+	--- @param fname string
+	--- @return boolean
+	local function is_active(fname)
+		local current_buf = vim.api.nvim_get_current_buf()
+		local current = vim.api.nvim_buf_get_name(current_buf)
+		local target = vim.fn.fnamemodify(fname, ":p")
+		return target == current
+	end
+
+	--- Remove the item at the provided index and shift the rest of the list left.
+	--- @param index integer
+	local function splice(index)
+		local list = harpoon:list()
+		local length = list:length()
+		if index < length then
+			for i = index, length - 1 do
+				list:replace_at(i, list:get(i + 1))
+			end
+			list:remove_at(length)
+		else
+			list:remove_at(index)
+		end
+	end
+
+	--- Present items in the tab line.
+	local function render()
+		local fnames = harpoon:list():display()
+		local tabline = ""
+
+		for i, fname in ipairs(fnames) do
+			local hl_group = is_active(fname) and "TabLineSel" or "TabLine"
+			local name = fname:gsub("([^/])[^/]+/", "%1/")
+			tabline = tabline .. string.format(" %%#%s# %s[%d]", hl_group, name, i)
+		end
+
+		if #fnames == 0 then
 			vim.opt.tabline = ""
 			vim.opt.showtabline = 0
 		else
@@ -323,73 +364,35 @@ do -- Harpoon configuration:
 		end
 	end
 
-	vim.api.nvim_create_autocmd({ "BufEnter", "User" }, { callback = render })
+	vim.api.nvim_create_autocmd({ "BufEnter" }, { callback = render })
 
-	vim.keymap.set("n", "<leader>a", function()
-		harpoon:list():add()
-		render()
-	end)
-
-	vim.keymap.set("n", "<leader>t", function()
-		harpoon:list():next({ ui_nav_wrap = true })
-		render()
-	end)
-
-	vim.keymap.set("n", "<leader>T", function()
-		harpoon:list():prev({ ui_nav_wrap = true })
-		render()
-	end)
-
-	for i = 1, 9 do
+	for i = 1, 8 do
 		vim.keymap.set("n", string.format("<leader>%d", i), function()
 			harpoon:list():select(i)
 			render()
 		end)
 	end
 
-	vim.keymap.set("n", "<leader>dG", function()
-		harpoon:list():clear()
+	vim.keymap.set("n", "<leader>9", function()
+		local list = harpoon:list()
+		list:select(list:length())
 		render()
 	end)
 
-	vim.keymap.set("n", "<leader>dd", function()
+	vim.keymap.set("n", "<leader>p", function()
 		local list = harpoon:list()
-		local current_buf = vim.api.nvim_get_current_buf()
-		local current_file = vim.api.nvim_buf_get_name(current_buf)
-		local current_file_relative = vim.fn.fnamemodify(current_file, ":~:.")
-		local items = list:display()
-
-		local found_idx = nil
-		for i, item in ipairs(items) do
-			if item == current_file_relative then
-				found_idx = i
-				break
-			end
-		end
-
-		local length = list:length()
-		if found_idx then
-			if found_idx < length then
-				for i = found_idx, length - 1 do
-					list:replace_at(i, list:get(i + 1))
-				end
-				list:remove_at(length)
-				list:select(found_idx)
-			else
-				list:remove_at(found_idx)
-				if length > 1 then
-					list:select(length - 1)
-				end
-			end
+		local item, index = list:get_by_value(get_active_fname())
+		local is_pinned = item ~= nil
+		if is_pinned then
+			splice(index)
 		else
-			if length > 0 then
-				list:remove_at(length)
-				if length > 1 then
-					list:select(length - 1)
-				end
-			end
+			harpoon:list():add()
 		end
+		render()
+	end)
 
+	vim.keymap.set("n", "<leader>w", function()
+		harpoon:list():clear()
 		render()
 	end)
 end

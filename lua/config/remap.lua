@@ -1,3 +1,5 @@
+vim.g.mapleader = " "
+
 -- Maps <Tab> to jump while a snippet is active.
 -- For more information see: https://neovim.io/doc/user/lua.html#vim.snippet
 vim.keymap.set({ "i", "s" }, "<Tab>", function()
