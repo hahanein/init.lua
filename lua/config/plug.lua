@@ -301,23 +301,7 @@ do -- Harpoon configuration:
 	local harpoon = require("harpoon")
 	harpoon:setup()
 
-	--- Get the active buffer's file name.
-	--- @return string
-	local function get_active_fname()
-		local buffer = vim.api.nvim_get_current_buf()
-		local fname = vim.api.nvim_buf_get_name(buffer)
-		if fname == "" then
-			return ""
-		end
-
-		local abs = vim.fn.fnamemodify(fname, ":p")
-		local cwd = vim.fn.getcwd() .. "/"
-		if abs:find(cwd, 1, true) then
-			return abs:sub(#cwd + 1)
-		else
-			return abs
-		end
-	end
+	local keymap = { "h", "j", "k", "l", ";" }
 
 	--- Whether the provided item value is the active buffer.
 	--- @param fname string
@@ -329,34 +313,21 @@ do -- Harpoon configuration:
 		return target == current
 	end
 
-	--- Remove the item at the provided index and shift the rest of the list left.
-	--- @param index integer
-	local function splice(index)
-		local list = harpoon:list()
-		local length = list:length()
-		if index < length then
-			for i = index, length - 1 do
-				list:replace_at(i, list:get(i + 1))
-			end
-			list:remove_at(length)
-		else
-			list:remove_at(index)
-		end
-	end
-
 	--- Present items in the tab line.
 	local function render()
 		local fnames = harpoon:list():display()
 		local tabline = {}
 
 		for i, fname in ipairs(fnames) do
-			local hl_group = is_active(fname) and "TabLineSel" or "TabLine"
-			local name = fname:gsub("([^/])[^/]+/", "%1/")
+			if fname ~= "" then
+				local hl_group = is_active(fname) and "TabLineSel" or "TabLine"
+				local name = fname:gsub("([^/])[^/]+/", "%1/")
 
-			table.insert(tabline, "%#" .. hl_group .. "#")
-			table.insert(tabline, "%" .. i .. "@v:lua.on_click_harpoon_tabline@")
-			table.insert(tabline, name .. "[" .. i .. "]")
-			table.insert(tabline, "%X ")
+				table.insert(tabline, "%#" .. hl_group .. "#")
+				table.insert(tabline, "%" .. i .. "@v:lua.on_click_harpoon_tabline@")
+				table.insert(tabline, name .. "[" .. keymap[i] .. "]")
+				table.insert(tabline, "%X ")
+			end
 		end
 
 		if #fnames == 0 then
@@ -378,32 +349,21 @@ do -- Harpoon configuration:
 
 	vim.api.nvim_create_autocmd({ "BufEnter" }, { callback = render })
 
-	for i = 1, 8 do
-		vim.keymap.set("n", string.format("<A-%d>", i), function()
+	for i, key in pairs(keymap) do
+		vim.keymap.set("n", "<A-" .. key .. ">", function()
 			harpoon:list():select(i)
 			render()
 		end)
 	end
 
-	vim.keymap.set("n", "<A-9>", function()
-		local list = harpoon:list()
-		list:select(list:length())
-		render()
-	end)
+	for i, key in pairs(keymap) do
+		vim.keymap.set("n", "<A-m><A-" .. key .. ">", function()
+			harpoon:list():replace_at(i)
+			render()
+		end)
+	end
 
-	vim.keymap.set("n", "<A-p>", function()
-		local list = harpoon:list()
-		local item, index = list:get_by_value(get_active_fname())
-		local is_pinned = item ~= nil
-		if is_pinned then
-			splice(index)
-		else
-			harpoon:list():add()
-		end
-		render()
-	end)
-
-	vim.keymap.set("n", "<A-w>", function()
+	vim.keymap.set("n", "<A-m><A-m>", function()
 		harpoon:list():clear()
 		render()
 	end)
