@@ -347,39 +347,51 @@ do -- Harpoon configuration:
 	--- Present items in the tab line.
 	local function render()
 		local fnames = harpoon:list():display()
-		local tabline = ""
+		local tabline = {}
 
 		for i, fname in ipairs(fnames) do
 			local hl_group = is_active(fname) and "TabLineSel" or "TabLine"
 			local name = fname:gsub("([^/])[^/]+/", "%1/")
-			tabline = tabline .. string.format(" %%#%s# %s[%d]", hl_group, name, i)
+
+			table.insert(tabline, "%#" .. hl_group .. "#")
+			table.insert(tabline, "%" .. i .. "@v:lua.on_click_harpoon_tabline@")
+			table.insert(tabline, name .. "[" .. i .. "]")
+			table.insert(tabline, "%X ")
 		end
 
 		if #fnames == 0 then
 			vim.opt.tabline = ""
 			vim.opt.showtabline = 0
 		else
-			vim.opt.tabline = tabline .. "%#TabLineFill#"
+			table.insert(tabline, "%#TabLineFill#")
+			vim.opt.tabline = table.concat(tabline)
 			vim.opt.showtabline = 2
 		end
+	end
+
+	--- Expose handler to global scope for v:lua access.
+	--- @param minwid integer
+	_G.on_click_harpoon_tabline = function(minwid)
+		harpoon:list():select(minwid)
+		render()
 	end
 
 	vim.api.nvim_create_autocmd({ "BufEnter" }, { callback = render })
 
 	for i = 1, 8 do
-		vim.keymap.set("n", string.format("<leader>%d", i), function()
+		vim.keymap.set("n", string.format("<A-%d>", i), function()
 			harpoon:list():select(i)
 			render()
 		end)
 	end
 
-	vim.keymap.set("n", "<leader>9", function()
+	vim.keymap.set("n", "<A-9>", function()
 		local list = harpoon:list()
 		list:select(list:length())
 		render()
 	end)
 
-	vim.keymap.set("n", "<leader>p", function()
+	vim.keymap.set("n", "<A-p>", function()
 		local list = harpoon:list()
 		local item, index = list:get_by_value(get_active_fname())
 		local is_pinned = item ~= nil
@@ -391,7 +403,7 @@ do -- Harpoon configuration:
 		render()
 	end)
 
-	vim.keymap.set("n", "<leader>w", function()
+	vim.keymap.set("n", "<A-w>", function()
 		harpoon:list():clear()
 		render()
 	end)
