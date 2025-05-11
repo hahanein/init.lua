@@ -352,7 +352,6 @@ do -- Harpoon configuration:
 
 	for i, key in ipairs(keymap) do
 		vim.keymap.set("n", "<C-" .. key .. ">", function()
-			vim.notify("Operation completed successfully")
 			harpoon:list():select(i)
 			render()
 		end)
