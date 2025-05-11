@@ -91,10 +91,6 @@ on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 				end,
 			},
 			mapping = cmp.mapping.preset.insert({
-				["<C-b>"] = cmp.mapping.scroll_docs(-4),
-				["<C-f>"] = cmp.mapping.scroll_docs(4),
-				["<C-Space>"] = cmp.mapping.complete(),
-				["<C-e>"] = cmp.mapping.abort(),
 				["<Tab>"] = cmp.mapping.confirm({ select = true }),
 			}),
 			sources = cmp.config.sources({
@@ -155,11 +151,7 @@ do -- Language server configuration:
 			do -- Remaps:
 				local opts = { buffer = buffer }
 				vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-				vim.keymap.set("n", "gS", vim.lsp.buf.workspace_symbol, opts)
-				vim.keymap.set("n", "g.", vim.lsp.buf.code_action, opts)
-				vim.keymap.set("n", "gA", vim.lsp.buf.references, opts)
-				vim.keymap.set("n", "cd", vim.lsp.buf.rename, opts)
-				vim.keymap.set("i", "<C-h>", vim.lsp.buf.signature_help, opts)
+				vim.keymap.set("n", "grw", vim.lsp.buf.workspace_symbol, opts)
 				vim.keymap.set("n", "[d", function()
 					vim.diagnostic.jump({ count = 1, float = true })
 				end, opts)
