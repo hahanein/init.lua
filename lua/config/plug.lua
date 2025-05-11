@@ -356,9 +356,6 @@ do -- Harpoon configuration:
 			harpoon:list():select(i)
 			render()
 		end)
-	end
-
-	for i, key in ipairs(keymap) do
 		vim.keymap.set("n", "<C-m><C-" .. key .. ">", function()
 			harpoon:list():replace_at(i)
 			render()
