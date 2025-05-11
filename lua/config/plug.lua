@@ -276,7 +276,7 @@ on_event_once("BufWritePost", { -- Formatter configuration:
 	end,
 })
 
-do -- Git configuration:
+do -- Fugitive configuration:
 	vim.o.statusline = "%<%f%h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)%P"
 	vim.keymap.set("n", "gh", "<cmd>diffget //2<CR>", { desc = "Get from left (LOCAL)" })
 	vim.keymap.set("n", "gl", "<cmd>diffget //3<CR>", { desc = "Get from right (REMOTE)" })
