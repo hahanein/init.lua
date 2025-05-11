@@ -169,6 +169,9 @@ do -- Language server configuration:
 				vim.keymap.set("n", "]d", function()
 					vim.diagnostic.jump({ count = -1, float = true })
 				end, opts)
+				vim.keymap.set("n", "<leader>d", function()
+					vim.diagnostic.enable(not vim.diagnostic.is_enabled())
+				end, opts)
 			end
 
 			do -- Present diagnostics in floating window:
