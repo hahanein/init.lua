@@ -70,7 +70,6 @@ do -- Ctrlp configuration:
 	vim.g.ctrlp_user_command = 'rg %s --files --color=never --glob ""'
 	vim.g.ctrlp_use_caching = false
 	vim.g.ctrlp_working_path_mode = false
-	vim.g.ctrlp_match_window = "top,order:btt,min:1,max:10,results:10"
 end
 
 require("nvim-surround").setup()
@@ -279,6 +278,8 @@ on_event_once("BufWritePost", { -- Formatter configuration:
 
 do -- Git configuration:
 	vim.o.statusline = "%<%f%h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)%P"
+	vim.keymap.set("n", "gh", "<cmd>diffget //2<CR>", { desc = "Get from left (LOCAL)" })
+	vim.keymap.set("n", "gl", "<cmd>diffget //3<CR>", { desc = "Get from right (REMOTE)" })
 end
 
 require("minuet").setup({
@@ -301,7 +302,7 @@ do -- Harpoon configuration:
 	local harpoon = require("harpoon")
 	harpoon:setup()
 
-	local keymap = { "h", "j", "k", "l", ";" }
+	local keymap = { "h", "j", "k", "l" }
 
 	--- Whether the provided item value is the active buffer.
 	--- @param fname string
@@ -349,22 +350,23 @@ do -- Harpoon configuration:
 
 	vim.api.nvim_create_autocmd({ "BufEnter" }, { callback = render })
 
-	for i, key in pairs(keymap) do
-		vim.keymap.set("n", "<A-" .. key .. ">", function()
+	for i, key in ipairs(keymap) do
+		vim.keymap.set("n", "<C-" .. key .. ">", function()
+			vim.notify("Operation completed successfully")
 			harpoon:list():select(i)
 			render()
 		end)
 	end
 
-	for i, key in pairs(keymap) do
-		vim.keymap.set("n", "<A-m><A-" .. key .. ">", function()
+	for i, key in ipairs(keymap) do
+		vim.keymap.set("n", "<C-m><C-" .. key .. ">", function()
 			harpoon:list():replace_at(i)
 			render()
 		end)
 	end
 
-	vim.keymap.set("n", "<A-m><A-m>", function()
+	vim.api.nvim_create_user_command("HarpoonDelMarks", function()
 		harpoon:list():clear()
 		render()
-	end)
+	end, { nargs = 0 })
 end
