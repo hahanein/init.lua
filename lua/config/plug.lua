@@ -154,15 +154,12 @@ do -- Language server configuration:
 
 			do -- Remaps:
 				local opts = { buffer = buffer }
-				vim.keymap.set("n", "g.", vim.lsp.buf.code_action, opts)
 				vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-				vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-				vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, opts)
-				vim.keymap.set("n", "gI", vim.lsp.buf.implementation, opts)
-				vim.keymap.set("n", "gs", vim.lsp.buf.document_symbol, opts)
 				vim.keymap.set("n", "gS", vim.lsp.buf.workspace_symbol, opts)
+				vim.keymap.set("n", "g.", vim.lsp.buf.code_action, opts)
 				vim.keymap.set("n", "gA", vim.lsp.buf.references, opts)
 				vim.keymap.set("n", "cd", vim.lsp.buf.rename, opts)
+				vim.keymap.set("i", "<C-k>", vim.lsp.buf.signature_help, opts)
 				vim.keymap.set("n", "[d", function()
 					vim.diagnostic.jump({ count = 1, float = true })
 				end, opts)
