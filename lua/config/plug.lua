@@ -294,7 +294,7 @@ do -- Harpoon configuration:
 	local harpoon = require("harpoon")
 	harpoon:setup()
 
-	local keymap = { "h", "j", "k", "l" }
+	local keymap = { "j", "k", "l", ";" }
 
 	--- Whether the provided item value is the active buffer.
 	--- @param fname string
