@@ -236,10 +236,20 @@ on_event_once("BufWritePost", { -- Linter configuration:
 do -- Formatter configuration:
 	vim.api.nvim_create_autocmd("BufWritePre", { -- Zig formatter configuration:
 		pattern = "*.zig",
-		callback = function()
+		callback = function(ctx)
+			local bufnr = ctx.buf
 			local view = vim.fn.winsaveview()
-			vim.cmd("keepjumps keeppatterns silent %!zig fmt --stdin")
-			vim.fn.winrestview(view)
+
+			-- grab current buffer text
+			local text = table.concat(vim.api.nvim_buf_get_lines(bufnr, 0, -1, false), "\n")
+
+			-- run zig fmt synchronously
+			local output = vim.fn.system("zig fmt --stdin", text)
+			local ok = (vim.v.shell_error == 0)
+			if ok then
+				vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, vim.split(output, "\n", { plain = true }))
+				vim.fn.winrestview(view)
+			end
 		end,
 	})
 
