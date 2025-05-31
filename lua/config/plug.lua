@@ -11,6 +11,7 @@ do -- Import plugins:
 
 	do -- Depends on plenary.nvim:
 		Plug("nvim-lua/plenary.nvim")
+		Plug("milanglacier/minuet-ai.nvim")
 		Plug("ThePrimeagen/harpoon", { ["branch"] = "harpoon2" })
 	end
 
@@ -93,6 +94,7 @@ on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 				["<Tab>"] = cmp.mapping.confirm({ select = true }),
 			}),
 			sources = cmp.config.sources({
+				{ name = "minuet" },
 				{ name = "nvim_lsp_signature_help" },
 				{ name = "nvim_lsp" },
 				{ name = "buffer" },
@@ -260,6 +262,22 @@ do -- Fugitive configuration:
 	vim.keymap.set("n", "gh", "<cmd>diffget //2<CR>", { desc = "Get from left (LOCAL)" })
 	vim.keymap.set("n", "gl", "<cmd>diffget //3<CR>", { desc = "Get from right (REMOTE)" })
 end
+
+require("minuet").setup({
+	add_single_line_entry = false,
+	n_completions = 1,
+	provider = "codestral",
+	provider_options = {
+		codestral = {
+			end_point = "https://api.mistral.ai/v1/fim/completions",
+			api_key = "MISTRAL_API_KEY",
+			optional = {
+				stop = { "\n\n" },
+				max_tokens = 256,
+			},
+		},
+	},
+})
 
 do -- Harpoon configuration:
 	local harpoon = require("harpoon")
