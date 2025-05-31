@@ -233,29 +233,40 @@ on_event_once("BufWritePost", { -- Linter configuration:
 	end,
 })
 
-on_event_once("BufWritePost", { -- Formatter configuration:
-	callback = function()
-		vim.fn["plug#load"]("formatter.nvim")
+do -- Formatter configuration:
+	vim.api.nvim_create_autocmd("BufWritePre", { -- Zig formatter configuration:
+		pattern = "*.zig",
+		callback = function()
+			local view = vim.fn.winsaveview()
+			vim.cmd("keepjumps keeppatterns silent %!zig fmt --stdin")
+			vim.fn.winrestview(view)
+		end,
+	})
 
-		vim.api.nvim_create_augroup("__formatter__", { clear = true })
-		vim.api.nvim_create_autocmd("BufWritePost", { group = "__formatter__", command = ":FormatWrite" })
+	on_event_once("BufWritePost", {
+		callback = function()
+			vim.fn["plug#load"]("formatter.nvim")
 
-		local filetype = {
-			go = { require("formatter.filetypes.go").goimports },
-			lua = { require("formatter.filetypes.lua").stylua },
-			json = { require("formatter.filetypes.json").prettier },
-			html = { require("formatter.filetypes.javascript").prettier },
-			javascript = { require("formatter.filetypes.javascript").prettier },
-			typescript = { require("formatter.filetypes.typescript").prettier },
-			javascriptreact = { require("formatter.filetypes.javascript").prettier },
-			typescriptreact = { require("formatter.filetypes.typescript").prettier },
-			markdown = { require("formatter.filetypes.markdown").prettier },
-		}
+			vim.api.nvim_create_augroup("__formatter__", { clear = true })
+			vim.api.nvim_create_autocmd("BufWritePost", { group = "__formatter__", command = ":FormatWrite" })
 
-		require("formatter").setup({ filetype = filetype })
-		vim.cmd("FormatWrite")
-	end,
-})
+			local filetype = {
+				go = { require("formatter.filetypes.go").goimports },
+				lua = { require("formatter.filetypes.lua").stylua },
+				json = { require("formatter.filetypes.json").prettier },
+				html = { require("formatter.filetypes.javascript").prettier },
+				javascript = { require("formatter.filetypes.javascript").prettier },
+				typescript = { require("formatter.filetypes.typescript").prettier },
+				javascriptreact = { require("formatter.filetypes.javascript").prettier },
+				typescriptreact = { require("formatter.filetypes.typescript").prettier },
+				markdown = { require("formatter.filetypes.markdown").prettier },
+			}
+
+			require("formatter").setup({ filetype = filetype })
+			vim.cmd("FormatWrite")
+		end,
+	})
+end
 
 do -- Fugitive configuration:
 	vim.o.statusline = "%<%f%h%m%r%{FugitiveStatusline()}%=%-14.(%l,%c%V%)%P"
