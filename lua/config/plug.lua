@@ -271,6 +271,7 @@ do -- Formatter configuration:
 				typescriptreact = { require("formatter.filetypes.typescript").prettier },
 				markdown = { require("formatter.filetypes.markdown").prettier },
 				yaml = { require("formatter.filetypes.yaml").prettier },
+				sh = { require("formatter.filetypes.sh").shfmt },
 			}
 
 			require("formatter").setup({ filetype = filetype })
