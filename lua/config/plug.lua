@@ -365,8 +365,16 @@ do -- Harpoon configuration:
 		end)
 	end
 
-	vim.api.nvim_create_user_command("HarpoonDelMarks", function()
-		harpoon:list():clear()
+	vim.api.nvim_create_user_command("HarpoonDelMarks", function(opts)
+		if opts.args == "" then -- Delete all marks:
+			harpoon:list():clear()
+		else -- Delete mark associated with specific key:
+			local index = vim.fn.index(keymap, opts.args)
+			if index >= 0 then
+				harpoon:list():remove_at(index + 1)
+			end
+		end
+
 		render()
-	end, { nargs = 0 })
+	end, { nargs = "?" })
 end
