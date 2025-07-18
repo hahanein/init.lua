@@ -139,6 +139,14 @@ do -- Language server configuration:
 					},
 				},
 			},
+			java = {
+				format = {
+					settings = {
+						url = vim.fn.expand("~/.config/jdtls/eclipse-formatter.xml"),
+						profile = "macmon-java",
+					},
+				},
+			},
 		},
 		capabilities = require("cmp_nvim_lsp").default_capabilities(),
 		on_attach = function(client, buffer)
@@ -167,6 +175,17 @@ do -- Language server configuration:
 				vim.api.nvim_create_autocmd("CursorHold", {
 					callback = function()
 						vim.diagnostic.open_float(nil, { focusable = false, scope = "cursor" })
+					end,
+				})
+			end
+
+			if client.name == "jdtls" then -- Enable Eclipse LSP Formatting for Java:
+				local grp = vim.api.nvim_create_augroup("JdtlsFormat", { clear = true })
+				vim.api.nvim_create_autocmd("BufWritePre", {
+					group = grp,
+					buffer = buffer,
+					callback = function()
+						vim.lsp.buf.format({ async = false })
 					end,
 				})
 			end
