@@ -69,7 +69,8 @@ do -- Tree-sitter configuration:
 	-- vim.treesitter.query.set("typescript", "highlights", "[(comment) (html_comment)] @comment")
 	-- vim.treesitter.query.set("lua", "highlights", "(comment) @comment")
 	require("nvim-treesitter.configs").setup({
-		auto_install = true,
+		ensure_installed = "all",
+		sync_install = true,
 		highlight = { enable = true },
 	})
 end
