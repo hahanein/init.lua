@@ -62,12 +62,6 @@ end
 vim.cmd("colorscheme brutalism")
 
 do -- Tree-sitter configuration:
-	-- vim.treesitter.query.set("go", "highlights", "(comment) @comment")
-	-- vim.treesitter.query.set("zig", "highlights", "(comment) @comment")
-	-- vim.treesitter.query.set("rust", "highlights", "[(line_comment) (doc_comment) (block_comment)] @comment")
-	-- vim.treesitter.query.set("javascript", "highlights", "[(comment) (html_comment)] @comment")
-	-- vim.treesitter.query.set("typescript", "highlights", "[(comment) (html_comment)] @comment")
-	-- vim.treesitter.query.set("lua", "highlights", "(comment) @comment")
 	require("nvim-treesitter.configs").setup({
 		ensure_installed = "all",
 		sync_install = true,
@@ -256,7 +250,6 @@ do -- Formatter configuration:
 				markdown = { require("formatter.filetypes.markdown").prettier },
 				yaml = { require("formatter.filetypes.yaml").prettier },
 				sh = { require("formatter.filetypes.sh").shfmt },
-				python = { require("formatter.filetypes.python").ruff },
 			}
 
 			require("formatter").setup({ filetype = filetype })
