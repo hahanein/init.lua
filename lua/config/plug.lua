@@ -62,13 +62,16 @@ end
 vim.cmd("colorscheme brutalism")
 
 do -- Tree-sitter configuration:
-	vim.treesitter.query.set("go", "highlights", "(comment) @comment")
-	vim.treesitter.query.set("zig", "highlights", "(comment) @comment")
-	vim.treesitter.query.set("rust", "highlights", "[(line_comment) (doc_comment) (block_comment)] @comment")
-	vim.treesitter.query.set("javascript", "highlights", "[(comment) (html_comment)] @comment")
-	vim.treesitter.query.set("typescript", "highlights", "[(comment) (html_comment)] @comment")
-	vim.treesitter.query.set("lua", "highlights", "(comment) @comment")
-	require("nvim-treesitter.configs").setup({ highlight = { enable = true } })
+	-- vim.treesitter.query.set("go", "highlights", "(comment) @comment")
+	-- vim.treesitter.query.set("zig", "highlights", "(comment) @comment")
+	-- vim.treesitter.query.set("rust", "highlights", "[(line_comment) (doc_comment) (block_comment)] @comment")
+	-- vim.treesitter.query.set("javascript", "highlights", "[(comment) (html_comment)] @comment")
+	-- vim.treesitter.query.set("typescript", "highlights", "[(comment) (html_comment)] @comment")
+	-- vim.treesitter.query.set("lua", "highlights", "(comment) @comment")
+	require("nvim-treesitter.configs").setup({
+		auto_install = true,
+		highlight = { enable = true },
+	})
 end
 
 do -- Ctrlp configuration:
