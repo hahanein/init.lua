@@ -4,7 +4,7 @@ require("jdtls").start_or_attach({
 	on_attach = function(client, buffer)
 		require("config.lsp").on_attach(client, buffer)
 
-		-- Enable Eclipse LSP Formatting for Java:
+		-- Enable eclipse.jdt.ls formatting:
 		vim.api.nvim_create_autocmd("BufWritePre", {
 			group = vim.api.nvim_create_augroup("JdtlsFormat", { clear = true }),
 			buffer = buffer,
