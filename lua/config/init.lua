@@ -1,3 +1,4 @@
 require("config.set")
 require("config.remap")
 require("config.plug")
+require("config.lsp")
