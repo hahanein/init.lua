@@ -15,8 +15,8 @@ do -- Import plugins:
 	end
 
 	do -- Managed with mason:
-		Plug("williamboman/mason.nvim", { ["do"] = vim.fn[":MasonUpdate"] })
-		Plug("williamboman/mason-lspconfig.nvim")
+		Plug("mason-org/mason.nvim", { ["do"] = vim.fn[":MasonUpdate"] })
+		Plug("mason-org/mason-lspconfig.nvim")
 		Plug("neovim/nvim-lspconfig")
 		Plug("hrsh7th/nvim-cmp")
 		Plug("hrsh7th/cmp-cmdline")
