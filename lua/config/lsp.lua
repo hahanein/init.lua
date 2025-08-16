@@ -29,17 +29,6 @@ function M.on_attach(client, buffer)
 			end,
 		})
 	end
-
-	if client.name == "jdtls" then -- Enable Eclipse LSP Formatting for Java:
-		local grp = vim.api.nvim_create_augroup("JdtlsFormat", { clear = true })
-		vim.api.nvim_create_autocmd("BufWritePre", {
-			group = grp,
-			buffer = buffer,
-			callback = function()
-				vim.lsp.buf.format({ async = false })
-			end,
-		})
-	end
 end
 
 return M
