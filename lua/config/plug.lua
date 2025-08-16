@@ -252,6 +252,7 @@ do -- Formatter configuration:
 				markdown = { require("formatter.filetypes.markdown").prettier },
 				yaml = { require("formatter.filetypes.yaml").prettier },
 				sh = { require("formatter.filetypes.sh").shfmt },
+				python = { require("formatter.filetypes.python").ruff },
 			}
 
 			require("formatter").setup({ filetype = filetype })
