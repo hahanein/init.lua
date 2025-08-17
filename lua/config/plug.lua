@@ -5,7 +5,7 @@ do -- Import plugins:
 
 	Plug("ctrlpvim/ctrlp.vim")
 	Plug("hahanein/vim-brutalism")
-	Plug("nvim-treesitter/nvim-treesitter", { ["do"] = vim.fn[":TSUpdate"] })
+	Plug("nvim-treesitter/nvim-treesitter", { ["do"] = ":TSUpdate" })
 	Plug("kylechui/nvim-surround")
 	Plug("tpope/vim-fugitive")
 
@@ -15,7 +15,7 @@ do -- Import plugins:
 	end
 
 	do -- Managed with mason:
-		Plug("mason-org/mason.nvim", { ["do"] = vim.fn[":MasonUpdate"] })
+		Plug("mason-org/mason.nvim", { ["do"] = ":MasonUpdate" })
 		Plug("mason-org/mason-lspconfig.nvim")
 		Plug("neovim/nvim-lspconfig")
 		Plug("hrsh7th/nvim-cmp")
@@ -42,16 +42,6 @@ do -- Import plugins:
 	vim.call("plug#end")
 end
 
-local function on_event_once(event, opts)
-	local id
-	id = vim.api.nvim_create_autocmd(event, {
-		callback = function()
-			vim.api.nvim_del_autocmd(id)
-			opts.callback()
-		end,
-	})
-end
-
 local function on_command_once(name, opts)
 	vim.api.nvim_create_user_command(name, function()
 		vim.api.nvim_del_user_command(name)
@@ -61,11 +51,13 @@ end
 
 vim.cmd("colorscheme brutalism")
 
-do -- Tree-sitter configuration:
-	require("nvim-treesitter.configs").setup({
-		ensure_installed = "all",
-		sync_install = true,
-		highlight = { enable = true },
+do -- Configure tree-sitter:
+	require("nvim-treesitter.configs").setup({ highlight = { enable = true } })
+	-- Ensure it is enabled even when first buffer misses attach autocmd:
+	vim.api.nvim_create_autocmd("VimEnter", {
+		callback = function()
+			vim.cmd("silent! TSBufEnable highlight")
+		end,
 	})
 end
 
@@ -77,7 +69,7 @@ end
 
 require("nvim-surround").setup()
 
-on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
+vim.api.nvim_create_autocmd({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 	callback = function()
 		local cmp = require("cmp")
 
@@ -117,6 +109,7 @@ on_event_once({ "InsertEnter", "CmdlineEnter" }, { -- Completion configuration:
 			matching = { disallow_symbol_nonprefix_matching = false },
 		})
 	end,
+	once = true,
 })
 
 require("mason").setup({
@@ -187,12 +180,16 @@ on_command_once("DapLoad", { -- Debug adapter configuration:
 	end,
 })
 
-on_event_once("BufWritePost", { -- Linter configuration:
+vim.api.nvim_create_autocmd("BufWritePost", { -- Linter configuration:
 	callback = function()
 		vim.fn["plug#load"]("nvim-lint")
 
 		local lint = require("lint")
-		vim.api.nvim_create_autocmd("BufWritePost", { callback = lint.try_lint })
+		vim.api.nvim_create_autocmd("BufWritePost", {
+			callback = function()
+				lint.try_lint()
+			end,
+		})
 		lint.linters_by_ft = {
 			go = { "golangcilint" },
 			lua = { "luacheck" },
@@ -204,6 +201,7 @@ on_event_once("BufWritePost", { -- Linter configuration:
 
 		lint.try_lint()
 	end,
+	once = true,
 })
 
 do -- Formatter configuration:
@@ -226,7 +224,7 @@ do -- Formatter configuration:
 		end,
 	})
 
-	on_event_once("BufWritePost", {
+	vim.api.nvim_create_autocmd("BufWritePost", {
 		callback = function()
 			vim.fn["plug#load"]("formatter.nvim")
 
@@ -250,6 +248,7 @@ do -- Formatter configuration:
 			require("formatter").setup({ filetype = filetype })
 			vim.cmd("FormatWrite")
 		end,
+		once = true,
 	})
 end
 
