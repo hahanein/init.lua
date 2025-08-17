@@ -283,19 +283,19 @@ do -- Harpoon configuration:
 	for i, key in ipairs(keymap) do
 		vim.keymap.set("n", "<M-" .. key .. ">", function()
 			harpoon:list():select(i)
-		end, { silent = true, desc = "Select pinned buffer" })
+		end, { silent = true, desc = "Select pinned file" })
 		vim.keymap.set("n", "<M-m><M-" .. key .. ">", function()
 			harpoon:list():replace_at(i)
 			vim.notify("Pinned to " .. key, vim.log.levels.INFO)
-		end, { silent = true, desc = "Pin buffer" })
+		end, { silent = true, desc = "Pin file" })
 		vim.keymap.set("n", "<M-m><M-d><M-" .. key .. ">", function()
 			harpoon:list():replace_at(i)
 			vim.notify("Unpinned from " .. key, vim.log.levels.INFO)
-		end, { silent = true, desc = "Unpin buffer" })
+		end, { silent = true, desc = "Unpin file" })
 	end
 
 	vim.keymap.set("n", "<M-m><M-d><M-d>", function()
 		harpoon:list():clear()
 		vim.notify("Unpinned all", vim.log.levels.INFO)
-	end, { silent = true, desc = "Unpin all buffers" })
+	end, { silent = true, desc = "Unpin all files" })
 end
