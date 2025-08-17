@@ -266,61 +266,15 @@ end
 
 do -- Harpoon configuration:
 	local harpoon = require("harpoon")
+
 	harpoon:setup()
 
 	local keymap = { "h", "j", "k", "l" }
 
-	--- Whether the provided item value is the active buffer.
-	--- @param fname string
-	--- @return boolean
-	local function is_active(fname)
-		local current_buf = vim.api.nvim_get_current_buf()
-		local current = vim.api.nvim_buf_get_name(current_buf)
-		local target = vim.fn.fnamemodify(fname, ":p")
-		return target == current
-	end
-
-	--- Present items in the tab line.
-	local function render()
-		local fnames = harpoon:list():display()
-		local tabline = {}
-
-		for i, fname in ipairs(fnames) do
-			if fname ~= "" then
-				local hl_group = is_active(fname) and "TabLineSel" or "TabLine"
-				local name = fname:gsub("([^/])[^/]+/", "%1/")
-
-				table.insert(tabline, "%#" .. hl_group .. "#")
-				table.insert(tabline, "%" .. i .. "@v:lua.on_click_harpoon_tabline@")
-				table.insert(tabline, name .. "[" .. keymap[i] .. "]")
-				table.insert(tabline, "%X ")
-			end
-		end
-
-		if #fnames == 0 then
-			vim.opt.tabline = ""
-			vim.opt.showtabline = 0
-		else
-			table.insert(tabline, "%#TabLineFill#")
-			vim.opt.tabline = table.concat(tabline)
-			vim.opt.showtabline = 2
-		end
-	end
-
-	--- Expose handler to global scope for v:lua access.
-	--- @param minwid integer
-	_G.on_click_harpoon_tabline = function(minwid)
-		harpoon:list():select(minwid)
-		render()
-	end
-
-	vim.api.nvim_create_autocmd({ "BufEnter" }, { callback = render })
-
 	if vim.fn.argc() == 0 then
-		for i in ipairs(keymap) do
+		for i = 1, #keymap do
 			if harpoon:list():get(i) ~= nil then
 				harpoon:list():select(i)
-				render()
 				break
 			end
 		end
@@ -329,20 +283,19 @@ do -- Harpoon configuration:
 	for i, key in ipairs(keymap) do
 		vim.keymap.set("n", "<M-" .. key .. ">", function()
 			harpoon:list():select(i)
-			render()
 		end, { silent = true, desc = "Select pinned buffer" })
 		vim.keymap.set("n", "<M-m><M-" .. key .. ">", function()
 			harpoon:list():replace_at(i)
-			render()
+			vim.notify("Pinned to " .. key, vim.log.levels.INFO)
 		end, { silent = true, desc = "Pin buffer" })
 		vim.keymap.set("n", "<M-m><M-d><M-" .. key .. ">", function()
-			harpoon:list():remove_at(i)
-			render()
+			harpoon:list():replace_at(i)
+			vim.notify("Unpinned from " .. key, vim.log.levels.INFO)
 		end, { silent = true, desc = "Unpin buffer" })
 	end
 
 	vim.keymap.set("n", "<M-m><M-d><M-d>", function()
 		harpoon:list():clear()
-		render()
+		vim.notify("Unpinned all", vim.log.levels.INFO)
 	end, { silent = true, desc = "Unpin all buffers" })
 end
