@@ -27,10 +27,10 @@ do -- Import plugins:
 
 		local manual = { ["on"] = {} }
 
-		Plug("mfussenegger/nvim-lint", manual)
 		Plug("mhartington/formatter.nvim", manual)
-		Plug("mfussenegger/nvim-dap", manual)
 		Plug("jay-babu/mason-nvim-dap.nvim", manual)
+		Plug("mfussenegger/nvim-dap", manual)
+		Plug("mfussenegger/nvim-lint", manual)
 
 		-- The standard nvim-lspconfig cannot handle some of the special
 		-- protocols used by eclipse.jdt.ls. This prevents us from viewing
@@ -316,27 +316,33 @@ do -- Harpoon configuration:
 
 	vim.api.nvim_create_autocmd({ "BufEnter" }, { callback = render })
 
-	for i, key in ipairs(keymap) do
-		vim.keymap.set("n", "<C-" .. key .. ">", function()
-			harpoon:list():select(i)
-			render()
-		end)
-		vim.keymap.set("n", "<C-m><C-" .. key .. ">", function()
-			harpoon:list():replace_at(i)
-			render()
-		end)
-	end
-
-	vim.api.nvim_create_user_command("HarpoonDelMarks", function(opts)
-		if opts.args == "" then -- Delete all marks:
-			harpoon:list():clear()
-		else -- Delete mark associated with specific key:
-			local index = vim.fn.index(keymap, opts.args)
-			if index >= 0 then
-				harpoon:list():remove_at(index + 1)
+	if vim.fn.argc() == 0 then
+		for i in ipairs(keymap) do
+			if harpoon:list():get(i) ~= nil then
+				harpoon:list():select(i)
+				render()
+				break
 			end
 		end
+	end
 
+	for i, key in ipairs(keymap) do
+		vim.keymap.set("n", "<M-" .. key .. ">", function()
+			harpoon:list():select(i)
+			render()
+		end, { silent = true, desc = "Select pinned buffer" })
+		vim.keymap.set("n", "<M-m><M-" .. key .. ">", function()
+			harpoon:list():replace_at(i)
+			render()
+		end, { silent = true, desc = "Pin buffer" })
+		vim.keymap.set("n", "<M-m><M-d><M-" .. key .. ">", function()
+			harpoon:list():remove_at(i)
+			render()
+		end, { silent = true, desc = "Unpin buffer" })
+	end
+
+	vim.keymap.set("n", "<M-m><M-d><M-d>", function()
+		harpoon:list():clear()
 		render()
-	end, { nargs = "?" })
+	end, { silent = true, desc = "Unpin all buffers" })
 end
