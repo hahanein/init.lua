@@ -265,8 +265,8 @@ do -- Harpoon configuration:
 
 	local keymap = { "h", "j", "k", "l" }
 
-	-- Select first pinned file when VIM was opened without args:
-	if vim.fn.argc() == 0 then
+	-- Select first pinned file when VIM was entered in empty state:
+	if vim.fn.argc() == 0 and vim.fn.expand("%") == "" and vim.bo.buftype == "" then
 		for i = 1, #keymap do
 			if harpoon:list():get(i) ~= nil then
 				harpoon:list():select(i)
