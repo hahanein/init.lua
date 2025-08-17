@@ -51,15 +51,14 @@ end
 
 vim.cmd("colorscheme brutalism")
 
-do -- Configure tree-sitter:
-	require("nvim-treesitter.configs").setup({ highlight = { enable = true } })
-	-- Ensure enabled state even when first buffer misses attach autocmd:
-	vim.api.nvim_create_autocmd("VimEnter", {
-		callback = function()
-			vim.cmd("silent! TSBufEnable highlight")
-		end,
-	})
-end
+-- For whatever reason buffers will miss attach autocmds when we open files
+-- directly or open them automatically on startup. We are just going to fire
+-- the attach autocmds again.
+vim.schedule(function()
+	vim.cmd("doautocmd <nomodeline> FileType")
+end)
+
+require("nvim-treesitter.configs").setup({ highlight = { enable = true } })
 
 do -- Ctrlp configuration:
 	vim.g.ctrlp_user_command = 'rg %s --files --color=never --glob ""'
@@ -93,9 +92,6 @@ vim.api.nvim_create_autocmd({ "InsertEnter", "CmdlineEnter" }, { -- Completion c
 				{ name = "nvim_lsp" },
 				{ name = "buffer" },
 			}),
-			performance = {
-				fetching_timeout = 900,
-			},
 		})
 
 		cmp.setup.cmdline({ "/", "?" }, {
