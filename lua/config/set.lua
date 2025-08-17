@@ -19,6 +19,8 @@ vim.opt.backupskip = "/var/tmp/*"
 vim.opt.directory = "/var/tmp"
 vim.opt.writebackup = true
 
+vim.g.netrw_banner = false
+
 -- Remove context menu "mouse support" items:
 vim.cmd([[
   aunmenu PopUp.How-to\ disable\ mouse
