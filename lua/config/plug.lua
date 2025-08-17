@@ -125,18 +125,6 @@ require("mason").setup({
 
 do -- Language server configuration:
 	local config = {
-		settings = { -- Language specific configuration:
-			Lua = {
-				-- You need to also add "vim" as a global to your .luacheckrc or else the
-				-- linter will keep complaining about it.
-				workspace = {
-					library = {
-						[vim.fn.expand("$VIMRUNTIME/lua")] = true,
-						[vim.fn.expand("$VIMRUNTIME/lua/vim/lsp")] = true,
-					},
-				},
-			},
-		},
 		capabilities = require("cmp_nvim_lsp").default_capabilities(),
 		on_attach = require("config.lsp").on_attach,
 	}
