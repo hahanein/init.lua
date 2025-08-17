@@ -51,9 +51,9 @@ end
 
 vim.cmd("colorscheme brutalism")
 
--- For whatever reason buffers will miss attach autocmds when we open files
--- directly or open them automatically on startup. We are just going to fire
--- the attach autocmds again.
+-- For whatever reason buffers will miss attach autocmds when we open a file
+-- directly or when we open a file automatically on startup. We are just going
+-- to fire the attach autocmds again.
 vim.schedule(function()
 	vim.cmd("doautocmd <nomodeline> FileType")
 end)
