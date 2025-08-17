@@ -53,7 +53,7 @@ vim.cmd("colorscheme brutalism")
 
 do -- Configure tree-sitter:
 	require("nvim-treesitter.configs").setup({ highlight = { enable = true } })
-	-- Ensure it is enabled even when first buffer misses attach autocmd:
+	-- Ensure enabled state even when first buffer misses attach autocmd:
 	vim.api.nvim_create_autocmd("VimEnter", {
 		callback = function()
 			vim.cmd("silent! TSBufEnable highlight")
