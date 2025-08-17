@@ -192,12 +192,7 @@ on_event_once("BufWritePost", { -- Linter configuration:
 		vim.fn["plug#load"]("nvim-lint")
 
 		local lint = require("lint")
-		vim.api.nvim_create_autocmd("BufWritePost", {
-			callback = function()
-				lint.try_lint()
-			end,
-		})
-
+		vim.api.nvim_create_autocmd("BufWritePost", { callback = lint.try_lint })
 		lint.linters_by_ft = {
 			go = { "golangcilint" },
 			lua = { "luacheck" },
