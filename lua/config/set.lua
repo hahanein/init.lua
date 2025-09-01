@@ -15,8 +15,9 @@ vim.opt.signcolumn = "yes"
 
 vim.opt.swapfile = false
 vim.opt.backup = false
-vim.opt.directory = "/var/tmp"
 vim.opt.writebackup = true
+vim.opt.undofile = true
+vim.opt.directory = "/var/tmp"
 
 vim.g.netrw_banner = false
 
