@@ -13,9 +13,8 @@ vim.opt.termguicolors = false
 vim.opt.wrap = false
 vim.opt.signcolumn = "yes"
 
-vim.opt.backup = true
-vim.opt.backupdir = "/var/tmp"
-vim.opt.backupskip = "/var/tmp/*"
+vim.opt.swapfile = false
+vim.opt.backup = false
 vim.opt.directory = "/var/tmp"
 vim.opt.writebackup = true
 
