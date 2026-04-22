@@ -126,14 +126,15 @@ do -- Language server configuration:
 	}
 
 	local mason_lspconfig = require("mason-lspconfig")
-	mason_lspconfig.setup()
-	for _, server in ipairs(mason_lspconfig.get_installed_servers()) do
-		if server == "jdtls" then -- luacheck: ignore
-			-- Never configure eclipse.jdt.ls since that is handled by Mathias
+	mason_lspconfig.setup({
+		automatic_enable = {
+			-- Never include eclipse.jdt.ls since that is handled by Mathias
 			-- Fußenegger's client instead.
-		else
-			vim.lsp.config(server, config)
-		end
+			exclude = { "jdtls" },
+		},
+	})
+	for _, server in ipairs(mason_lspconfig.get_installed_servers()) do
+		vim.lsp.config(server, config)
 	end
 end
 
