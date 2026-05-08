@@ -15,6 +15,8 @@ require("jdtls").start_or_attach({
 	end,
 	settings = {
 		java = {
+			maven = { downloadSources = true },
+			eclipse = { downloadSources = true },
 			format = {
 				settings = {
 					url = vim.fn.expand("~/.config/jdtls/eclipse-formatter.xml"),
