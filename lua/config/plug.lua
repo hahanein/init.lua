@@ -5,6 +5,7 @@ do -- Import plugins:
 
 	Plug("ctrlpvim/ctrlp.vim")
 	Plug("hahanein/vim-brutalism")
+	Plug("projekt0n/github-nvim-theme")
 	Plug("nvim-treesitter/nvim-treesitter", { ["do"] = ":TSUpdate" })
 	Plug("kylechui/nvim-surround")
 	Plug("tpope/vim-fugitive")
@@ -49,7 +50,7 @@ local function on_command_once(name, opts)
 	end, {})
 end
 
-vim.cmd("colorscheme brutalism")
+vim.cmd("colorscheme github_light")
 
 -- For whatever reason buffers will miss attach autocmds when we open a file
 -- directly or when we open a file automatically on startup. We are just going
