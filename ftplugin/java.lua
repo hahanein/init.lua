@@ -6,7 +6,7 @@ require("jdtls").start_or_attach({
 
 		-- Enable eclipse.jdt.ls formatting:
 		vim.api.nvim_create_autocmd("BufWritePre", {
-			group = vim.api.nvim_create_augroup("JdtlsFormat", { clear = true }),
+			group = vim.api.nvim_create_augroup("JdtlsFormat" .. buffer, { clear = true }),
 			buffer = buffer,
 			callback = function()
 				vim.lsp.buf.format({ async = false })

@@ -52,14 +52,12 @@ end
 
 vim.cmd("colorscheme github_light")
 
--- For whatever reason buffers will miss attach autocmds when we open a file
--- directly or when we open a file automatically on startup. We are just going
--- to fire the attach autocmds again.
-vim.schedule(function()
-	vim.cmd("doautocmd <nomodeline> FileType")
-end)
-
-require("nvim-treesitter.configs").setup({ highlight = { enable = true } })
+-- -- For whatever reason buffers will miss attach autocmds when we open a file
+-- -- directly or when we open a file automatically on startup. We are just going
+-- -- to fire the attach autocmds again.
+-- vim.schedule(function()
+-- 	vim.cmd("doautocmd <nomodeline> FileType")
+-- end)
 
 do -- Ctrlp configuration:
 	vim.g.ctrlp_user_command = 'rg %s --files --color=never --glob ""'
@@ -134,9 +132,6 @@ do -- Language server configuration:
 			exclude = { "jdtls" },
 		},
 	})
-	for _, server in ipairs(mason_lspconfig.get_installed_servers()) do
-		vim.lsp.config(server, config)
-	end
 end
 
 on_command_once("DapLoad", { -- Debug adapter configuration:
