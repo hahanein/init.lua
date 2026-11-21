@@ -76,14 +76,7 @@ local function on_command_once(name, opts)
 	end, {})
 end
 
-vim.cmd("colorscheme github_light")
-
--- -- For whatever reason buffers will miss attach autocmds when we open a file
--- -- directly or when we open a file automatically on startup. We are just going
--- -- to fire the attach autocmds again.
--- vim.schedule(function()
--- 	vim.cmd("doautocmd <nomodeline> FileType")
--- end)
+vim.cmd("colorscheme brutalism")
 
 -- Enable Tree-sitter highlighting for filetypes with installed parsers.
 -- nvim-treesitter manages parsers; Neovim enables highlighting per buffer.
