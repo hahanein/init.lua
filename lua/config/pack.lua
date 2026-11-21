@@ -1,47 +1,73 @@
-local Plug = vim.fn["plug#"]
+vim.pack.add({
+	{ src = "https://github.com/ctrlpvim/ctrlp.vim" },
+	{ src = "https://github.com/hahanein/vim-brutalism" },
+	{ src = "https://github.com/projekt0n/github-nvim-theme" },
 
-do -- Import plugins:
-	vim.call("plug#begin")
+	{ src = "https://github.com/nvim-treesitter/nvim-treesitter", version = "main" },
+	{ src = "https://github.com/kylechui/nvim-surround" },
+	{ src = "https://github.com/tpope/vim-fugitive" },
 
-	Plug("ctrlpvim/ctrlp.vim")
-	Plug("hahanein/vim-brutalism")
-	Plug("projekt0n/github-nvim-theme")
-	Plug("nvim-treesitter/nvim-treesitter", { ["do"] = ":TSUpdate" })
-	Plug("kylechui/nvim-surround")
-	Plug("tpope/vim-fugitive")
+	-- Depends on plenary.nvim:
+	{ src = "https://github.com/nvim-lua/plenary.nvim" },
+	{ src = "https://github.com/ThePrimeagen/harpoon", version = "harpoon2" },
 
-	do -- Depends on plenary.nvim:
-		Plug("nvim-lua/plenary.nvim")
-		Plug("ThePrimeagen/harpoon", { ["branch"] = "harpoon2" })
+	-- Managed with mason:
+	{ src = "https://github.com/mason-org/mason.nvim" },
+	{ src = "https://github.com/mason-org/mason-lspconfig.nvim" },
+	{ src = "https://github.com/neovim/nvim-lspconfig" },
+	{ src = "https://github.com/hrsh7th/nvim-cmp" },
+	{ src = "https://github.com/hrsh7th/cmp-cmdline" },
+	{ src = "https://github.com/hrsh7th/cmp-path" },
+	{ src = "https://github.com/hrsh7th/cmp-buffer" },
+	{ src = "https://github.com/hrsh7th/cmp-nvim-lsp" },
+	{ src = "https://github.com/hrsh7th/cmp-nvim-lsp-signature-help" },
+
+	-- The standard nvim-lspconfig cannot handle some of the special
+	-- protocols used by eclipse.jdt.ls. This prevents us from viewing
+	-- library classes among other things. Because of this we use Mathias
+	-- Fußenegger's client instead.
+	{ src = "https://github.com/mfussenegger/nvim-jdtls" },
+}, { confirm = false, load = true })
+
+-- Lazy loaded plugins:
+vim.pack.add({
+	-- Managed with mason:
+	{ src = "https://github.com/mhartington/formatter.nvim" },
+	{ src = "https://github.com/jay-babu/mason-nvim-dap.nvim" },
+	{ src = "https://github.com/mfussenegger/nvim-dap" },
+	{ src = "https://github.com/mfussenegger/nvim-lint" },
+}, { confirm = false, load = false })
+
+local loaded_plugins = {}
+
+local function load_plugin(name)
+	if loaded_plugins[name] then
+		return
 	end
 
-	do -- Managed with mason:
-		Plug("mason-org/mason.nvim", { ["do"] = ":MasonUpdate" })
-		Plug("mason-org/mason-lspconfig.nvim")
-		Plug("neovim/nvim-lspconfig")
-		Plug("hrsh7th/nvim-cmp")
-		Plug("hrsh7th/cmp-cmdline")
-		Plug("hrsh7th/cmp-path")
-		Plug("hrsh7th/cmp-buffer")
-		Plug("hrsh7th/cmp-nvim-lsp")
-		Plug("hrsh7th/cmp-nvim-lsp-signature-help")
+	vim.cmd.packadd(name)
+	loaded_plugins[name] = true
 
-		local manual = { ["on"] = {} }
-
-		Plug("mhartington/formatter.nvim", manual)
-		Plug("jay-babu/mason-nvim-dap.nvim", manual)
-		Plug("mfussenegger/nvim-dap", manual)
-		Plug("mfussenegger/nvim-lint", manual)
-
-		-- The standard nvim-lspconfig cannot handle some of the special
-		-- protocols used by eclipse.jdt.ls. This prevents us from viewing
-		-- library classes among other things. Because of this we use Mathias
-		-- Fußenegger's client instead.
-		Plug("mfussenegger/nvim-jdtls")
+	if vim.v.vim_did_enter ~= 1 then
+		return
 	end
 
-	vim.call("plug#end")
+	local plugin = vim.pack.get({ name }, { info = false })[1]
+	if not plugin then
+		return
+	end
+
+	local after_paths = vim.fn.glob(plugin.path .. "/after/plugin/**/*.{vim,lua}", false, true)
+	table.sort(after_paths)
+
+	for _, path in ipairs(after_paths) do
+		vim.cmd.source({ path, magic = { file = false } })
+	end
 end
+
+vim.api.nvim_create_user_command("PackUpdate", function(opts)
+	vim.pack.update(opts.fargs, { force = true })
+end, { nargs = "*" })
 
 local function on_command_once(name, opts)
 	vim.api.nvim_create_user_command(name, function()
@@ -58,6 +84,18 @@ vim.cmd("colorscheme github_light")
 -- vim.schedule(function()
 -- 	vim.cmd("doautocmd <nomodeline> FileType")
 -- end)
+
+-- Enable Tree-sitter highlighting for filetypes with installed parsers.
+-- nvim-treesitter manages parsers; Neovim enables highlighting per buffer.
+-- For one filetype, use vim.treesitter.start() in its ftplugin instead.
+vim.api.nvim_create_autocmd("FileType", {
+	callback = function(args)
+		local lang = vim.treesitter.language.get_lang(args.match)
+		if lang and vim.treesitter.language.add(lang) then
+			vim.treesitter.start(args.buf, lang)
+		end
+	end,
+})
 
 do -- Ctrlp configuration:
 	vim.g.ctrlp_user_command = 'rg %s --files --color=never --glob ""'
@@ -136,7 +174,8 @@ end
 
 on_command_once("DapLoad", { -- Debug adapter configuration:
 	callback = function()
-		vim.fn["plug#load"]("nvim-dap", "mason-nvim-dap.nvim")
+		load_plugin("nvim-dap")
+		load_plugin("mason-nvim-dap.nvim")
 
 		local bridge = require("mason-nvim-dap")
 		bridge.setup({ automatic_setup = true, handlers = { bridge.default_setup } })
@@ -163,7 +202,7 @@ on_command_once("DapLoad", { -- Debug adapter configuration:
 
 vim.api.nvim_create_autocmd("BufWritePost", { -- Linter configuration:
 	callback = function()
-		vim.fn["plug#load"]("nvim-lint")
+		load_plugin("nvim-lint")
 
 		local lint = require("lint")
 		vim.api.nvim_create_autocmd("BufWritePost", {
@@ -207,7 +246,7 @@ do -- Formatter configuration:
 
 	vim.api.nvim_create_autocmd("BufWritePost", {
 		callback = function()
-			vim.fn["plug#load"]("formatter.nvim")
+			load_plugin("formatter.nvim")
 
 			vim.api.nvim_create_augroup("__formatter__", { clear = true })
 			vim.api.nvim_create_autocmd("BufWritePost", { group = "__formatter__", command = ":FormatWrite" })
