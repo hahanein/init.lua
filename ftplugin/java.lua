@@ -1,6 +1,27 @@
+local buffer_dir = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
+local pom = vim.fs.find("pom.xml", { path = buffer_dir, upward = true })[1]
+if not pom then
+	return
+end
+
+local root_dir = vim.fs.dirname(pom)
+-- The jdtls launcher otherwise derives its data directory from Neovim's
+-- working-directory basename. Multiple Maven roots opened from one Neovim
+-- instance can then corrupt the shared Eclipse workspace. Key it by the full
+-- Maven root path so each root and Git worktree gets isolated metadata.
+local workspace_dir = vim.fs.joinpath(vim.fn.stdpath("cache"), "jdtls", vim.fn.sha256(root_dir))
+vim.fn.mkdir(workspace_dir, "p")
+
 require("jdtls").start_or_attach({
-	cmd = { vim.fn.expand("~/.local/share/nvim/mason/bin/jdtls") },
-	root_dir = vim.fs.dirname(vim.fs.find({ "pom.xml" }, { upward = true })[1]),
+	cmd = {
+		vim.fn.expand("~/.local/share/nvim/mason/bin/jdtls"),
+		-- jdtls 1.63+ needs Java 25 to run; project runtimes are configured below.
+		"--java-executable",
+		"/usr/lib/jvm/java-25-amazon-corretto/bin/java",
+		"-data",
+		workspace_dir,
+	},
+	root_dir = root_dir,
 	on_attach = function(client, buffer)
 		require("config.lsp").on_attach(client, buffer)
 

@@ -22,8 +22,13 @@ function M.on_attach(client, buffer)
 
 	do -- Present diagnostics in floating window:
 		vim.diagnostic.config({ virtual_text = false })
-		vim.o.updatetime = 50
+		vim.o.updatetime = 300
+
+		local group = vim.api.nvim_create_augroup("LspDiagnosticFloat", { clear = false })
+		vim.api.nvim_clear_autocmds({ group = group, event = "CursorHold", buffer = buffer })
 		vim.api.nvim_create_autocmd("CursorHold", {
+			group = group,
+			buffer = buffer,
 			callback = function()
 				vim.diagnostic.open_float(nil, { focusable = false, scope = "cursor" })
 			end,

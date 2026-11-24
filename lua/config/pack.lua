@@ -151,13 +151,20 @@ require("mason").setup({
 })
 
 do -- Language server configuration:
-	local config = {
-		capabilities = require("cmp_nvim_lsp").default_capabilities(),
-		on_attach = require("config.lsp").on_attach,
-	}
+	vim.api.nvim_create_autocmd("LspAttach", {
+		callback = function(args)
+			local client = vim.lsp.get_client_by_id(args.data.client_id)
+			if client then
+				require("config.lsp").on_attach(client, args.buf)
+			end
+		end,
+	})
 
-	local mason_lspconfig = require("mason-lspconfig")
-	mason_lspconfig.setup({
+	vim.lsp.config("*", {
+		capabilities = require("cmp_nvim_lsp").default_capabilities(),
+	})
+
+	require("mason-lspconfig").setup({
 		automatic_enable = {
 			-- Never include eclipse.jdt.ls since that is handled by Mathias
 			-- Fußenegger's client instead.
